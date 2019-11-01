@@ -17,4 +17,4 @@ The full methodology is available for download in the [release](https://github.c
 wiki page for the latest methodology updates and forthcoming project
 releases.
 
-A preconfigured Ubuntu virtual machine (*EmbedOS*) with firmware testing tools used throughout the methodology can be downloaded via the following [[link]](https://tinyurl.com/EmbedOS-2019). Details regarding EmbedOS' tools can be found on GitHub within the following repository [https://github.com/scriptingxss/EmbedOS](https://github.com/scriptingxss/EmbedOS).
+A preconfigured Ubuntu virtual machine (*EmbedOS*) with firmware testing tools used throughout the methodology can be downloaded via the following [[link]](https://tinyurl.com/EmbedOS-2019). Details regarding EmbedOS' tools can be found on GitHub [https://github.com/scriptingxss/EmbedOS](https://github.com/scriptingxss/EmbedOS).

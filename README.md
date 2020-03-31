@@ -144,6 +144,8 @@ Filesystem types: squashfs, ubifs, romfs, rootfs, jffs2, yaffs2, cramfs, initram
 
 2a. Sometimes, binwalk will not have the magic byte of the filesystem in its signatures. In these cases, use binwalk to find the offset of the filesystem and carve the compressed filesystem from the binary and manually extract the filesystem according to its type using the steps below.
 
+> \*Note: Binwalk also gives the ability to add magic bytes and create signatures. See [https://github.com/ReFirmLabs/binwalk/wiki/Signature-File-Format](https://github.com/ReFirmLabs/binwalk/wiki/Signature-File-Format)
+
 ```text
 $ binwalk DIR850L_REVB.bin
 

@@ -1,4 +1,4 @@
 # Table of contents
 
-* [Initial page](README.md)
+* [Firmware Security Testing Methodology](README.md)
 

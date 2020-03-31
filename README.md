@@ -25,7 +25,7 @@ The following sections will further detail each stage with supporting examples w
 
 A preconfigured Ubuntu virtual machine \(EmbedOS\) with firmware testing tools used throughout this document can be downloaded via the following [link](https://tinyurl.com/EmbedOS-2020). Details regarding EmbedOS’ tools can be found on GitHub within the following repository [https://github.com/scriptingxss/EmbedOS](https://github.com/scriptingxss/EmbedOS).
 
-## **Information gathering and reconnaissance**
+## **[Stage 1] Information gathering and reconnaissance**
 
 During this stage, collect as much information about the target as possible to understand its overall composition underlying technology. Attempt to gather the following:
 
@@ -69,7 +69,7 @@ Figure : LGTM Dropbear Results
 
 With the information at hand, a light threat model exercise should be performed mapping attack surfaces and impact areas that show the most value in the event of compromise.
 
-## **Obtaining firmware**
+## **[Stage 2] Obtaining firmware**
 
 To begin reviewing firmware contents, the firmware image file must be acquired. Attempt to obtain firmware contents using one or more of the following methods:
 
@@ -91,13 +91,13 @@ To begin reviewing firmware contents, the firmware image file must be acquired. 
 
 Each of the listed methods vary in difficulty and should not be considered an exhaustive list. Select the appropriate method according to the project objectives and rules of engagement. If possible, request both a debug build and release build of firmware to maximize testing coverage use cases in the event debug code or functionality is compiled within a release.
 
-## **Analyzing firmware**
+## **[Stage 3] Analyzing firmware**
 
 Once the firmware image is obtained, explore aspects of the file to identify its characteristics. Use the following steps to analyze firmware file types, potential root filesystem metadata, and gain additional understanding of the platform it's compiled for.
 
 Leverage binutils such as:
 
-```text
+```
 file <bin>  
 strings  
 strings -n5 <bin>  
@@ -126,7 +126,7 @@ Alternate tools are also available using Binvis online and the standalone applic
   * [https://code.google.com/archive/p/binvis/](https://code.google.com/archive/p/binvis/)
   * [https://binvis.io/\#/](https://binvis.io/#/)
 
-## **Extracting the filesystem**
+## **[Stage 4] Extracting the filesystem**
 
 This stage involves looking inside firmware and parsing relative filesystem data to start identifying as many potential security issues as possible. Use the following steps to extract firmware contents for review of uncompiled code and device configurations used in following stages. Both automated and manual extractions methods are shown below.
 
@@ -188,7 +188,7 @@ Files will be in "`squashfs-root`" directory afterwards.
 
 `$ ubidump.py <bin>`
 
-## **Analyzing filesystem contents**
+## **[Stage 5] Analyzing filesystem contents**
 
 During this stage, clues are gathered for dynamic and runtime analysis stages. Investigate if the target firmware contains the following \(non-exhaustive\):
 
@@ -229,7 +229,7 @@ See the firmwalker output below.
 
 Two files will be generated, firmwalker.txt and firmwalkerappsec.txt. These output files should be manually reviewed.
 
-### Firmware Analysis Comparison Toolkit  \(FACT \)
+### Firmware Analysis Comparison Toolkit  (FACT )
 
 Fortunately, multiple open source automated firmware analysis tools are available. FACT features include the following:
 
@@ -349,7 +349,7 @@ Partial RELRO   No canary found   NX enabled    No PIE          No RPATH   No RU
 
 Figure : Checksec.sh
 
-## **Emulating firmware**
+## **[Stage 6] Emulating firmware**
 
 Using details and clues identified in previous steps, firmware as well as it’s encapsulated binaries must be emulated to verify potential vulnerabilities. To accomplish emulating firmware, there are a few approaches listed below.
 
@@ -490,7 +490,7 @@ root@IoTGoat:/#
 
 _Note: Modifications to these tools may be required if the firmware contains an uncommon compression, filesystem, or unsupported architecture._
 
-## **Dynamic analysis**
+## **[Stage 7] Dynamic analysis**
 
 In this stage, perform dynamic testing while a device is running in its normal or emulated environment. Objectives in this stage may vary depending on the project and level of access given. Typically, this involves tampering of bootloader configurations, web and API testing, fuzzing \(network and application services\), as well as active scanning using various toolsets to acquire elevated access \(root\) and/or code execution.
 
@@ -587,17 +587,17 @@ If a root shell has already been obtained from dynamic analysis, bootloader mani
 
 If possible, identify a vulnerability within startup scripts to obtain persistent access to a device across reboots. Such vulnerabilities arise when startup scripts reference, [symbolically link](https://www.chromium.org/chromium-os/chromiumos-design-docs/hardening-against-malicious-stateful-data), or depend on code located in untrusted mounted locations such as SD cards, and flash volumes used for storage data outside of root filesystems.
 
-## **Runtime analysis**
+## **[Stage 8] Runtime analysis**
 
 Runtime analysis involves attaching to a running process or binary while a device is running in its normal or emulated environment. Basic runtime analysis steps are provided below:
 
 1. `sudo chroot . ./qemu-arch -L <optionalLibPath> -g <gdb_port> <binary>`
 2. Attach gdb-multiarch or use IDA to emulate the binary
-3. Set breakpoints for functions identified during step 4 such as memcpy, strncpy, strcmp, etc.
-4. Execute large payload strings to identify overflows or process crashes using a fuzzer
-5. Move to step 8 if a vulnerability is identified
+3. Set breakpoints for functions identified during stage 4 such as memcpy, strncpy, strcmp, etc.
+4. Execute large payload strings to identify overflows or process crashes using a fuzzer while attached to the target process
+5. Move to stage 9 if a vulnerability is identified
 
-Tools that may be helpful are \(non-exhaustive\):
+Tools that may be helpful are (non-exhaustive):
 
 * gdb-multiarch
 * [Peda](https://github.com/longld/peda) 
@@ -605,11 +605,11 @@ Tools that may be helpful are \(non-exhaustive\):
 * ptrace
 * strace
 * IDA Pro
-* Ghidra
+* [Ghidra](https://ghidra-sre.org/)
 * Binary Ninja
 * Hopper
 
-## **Binary Exploitation**
+## **[Stage 9] Binary Exploitation**
 
 After identifying a vulnerability within a binary from previous steps, a proper proof-of-concept \(PoC\) is required to demonstrate the real-world impact and risk. Developing exploit code requires programming experience in lower level languages \(e.g. ASM, C/C++, shellcode, etc.\) as well as background within the particular target architecture \(e.g. MIPS, ARM, x86 etc.\). PoC code involves obtaining arbitrary execution on a device or application by controlling an instruction in memory.
 
@@ -618,23 +618,25 @@ It is not common for binary runtime protections \(e.g. NX, DEP, ASLR, etc.\) to 
 * [https://azeria-labs.com/writing-arm-shellcode/](https://azeria-labs.com/writing-arm-shellcode/)
 * [https://www.corelan.be/index.php/category/security/exploit-writing-tutorials/](https://www.corelan.be/index.php/category/security/exploit-writing-tutorials/)
 
-## **Firmware analysis tool index**
+## **Firmware and binary analysis tool index**
 
 A combination of tools will be used throughout assessing firmware. Listed below, are commonly used tools.
 
 * [Firmware Analysis Comparison Toolkit](https://github.com/fkie-cad/FACT_core) \(FACT\)
 * [FWanalyzer](https://github.com/cruise-automation/fwanalyzer)
-* [ByteSweep](https://gitlab.com/bytesweep/bytesweep)
-* [Binwalk](http://binwalk.org/)
-* flashrom
-* Openocd
 * [Firmwalker](https://github.com/craigz28/firmwalker)
 * [Firmware Modification Kit](https://code.google.com/archive/p/firmware-mod-kit/)
+* [Firmadyne](https://github.com/firmadyne/firmadyne)
+* [ByteSweep](https://gitlab.com/bytesweep/bytesweep)
+* [Binwalk](http://binwalk.org/)
+* [Flashrom][https://www.flashrom.org/Flashrom]
+* [Openocd][http://openocd.org/]
 * [Angr binary analysis framework](https://github.com/angr/angr)
 * [Binary Analysis Tool](http://www.binaryanalysis.org/en/home)
-* [Firmadyne](https://github.com/firmadyne/firmadyne)
 * [Checksec.sh](https://github.com/slimm609/checksec.sh)
 * [CHIPSEC](https://github.com/chipsec/chipsec)
+* [Qiling Advanced Binary Emulation Framework](https://github.com/qilingframework/qiling)
+* [Triton dynamic binary analysis (DBA) framework](https://triton.quarkslab.com/)
 
 ## Vulnerable firmware
 
@@ -655,7 +657,10 @@ To practice discovering vulnerabilities in firmware, use the following vulnerabl
 
 If you would like to contribute or provide feedback to improve this methodology, contact [Aaron.guzman@owasp.org](mailto:Aaron.guzman@owasp.org) \([@scriptingxss](https://twitter.com/scriptingxss?)\). Special thanks to our sponsors Cisco Meraki, OWASP Inland Empire, and OWASP Los Angeles as well as José Alejandro Rivas Vidal for his careful review.
 
+**License**
+
+[Creative Commons Attribution Share Alike 4.0 International](https://github.com/scriptingxss/owasp-fstm/blob/master/License.md)
+
 ![](.gitbook/assets/14.png)
 
 ![](.gitbook/assets/15.png)![](.gitbook/assets/16.png)
-

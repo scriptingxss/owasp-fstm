@@ -622,7 +622,7 @@ It is not common for binary runtime protections \(e.g. NX, DEP, ASLR, etc.\) to 
 * [https://azeria-labs.com/writing-arm-shellcode/](https://azeria-labs.com/writing-arm-shellcode/)
 * [https://www.corelan.be/index.php/category/security/exploit-writing-tutorials/](https://www.corelan.be/index.php/category/security/exploit-writing-tutorials/)
 
-## **Firmware analysis tool index**
+## **Firmware and binary analysis tool index**
 
 A combination of tools will be used throughout assessing firmware. Listed below, are commonly used tools.
 

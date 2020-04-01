@@ -659,7 +659,7 @@ To practice discovering vulnerabilities in firmware, use the following vulnerabl
 
 **Feedback and contributing**
 
-If you would like to contribute or provide feedback to improve this methodology, contact [Aaron.guzman@owasp.org](mailto:Aaron.guzman@owasp.org) \([@scriptingxss](https://twitter.com/scriptingxss?)\). Special thanks to our sponsors Cisco Meraki, OWASP Inland Empire, and OWASP Los Angeles as well as José Alejandro Rivas Vidal for his careful review.
+If you would like to contribute or provide feedback to improve this methodology, contact [Aaron.guzman@owasp.org](mailto:Aaron.guzman@owasp.org) \([@scriptingxss](https://twitter.com/scriptingxss?)\). For any improvements, make sure to open up an issue or a pull request on project's GitHub (https://github.com/scriptingxss/owasp-fstm/issues), and we'll make sure to tend to it! Special thanks to our sponsors Cisco Meraki, OWASP Inland Empire, and OWASP Los Angeles as well as José Alejandro Rivas Vidal for his careful review.
 
 **License**
 

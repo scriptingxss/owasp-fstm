@@ -351,6 +351,8 @@ Partial RELRO   No canary found   NX enabled    No PIE          No RPATH   No RU
 
 Figure : Checksec.sh
 
+For Microsoft binaries \(EXE & DLL\), use [PESecurity](https://github.com/NetSPI/PESecurity) to check for ASLR, DEP, SafeSEH, StrongNaming, Authenticode, Control Flow Guard, and HighEntropyVA.
+
 ## **\[Stage 6\] Emulating firmware**
 
 Using details and clues identified in previous steps, firmware as well as it’s encapsulated binaries must be emulated to verify potential vulnerabilities. To accomplish emulating firmware, there are a few approaches listed below.

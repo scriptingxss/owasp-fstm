@@ -432,10 +432,22 @@ Connection to 127.0.0.1 5515 port [tcp/*] succeeded!
 [***]Successfully Connected to IoTGoat's Backdoor[***]
 ```
 
-The following example issues a POST request to a MIPS CGI binary.  
+Sometimes, requests are dispatched to the CGI binary by the HTTP server. By simply emulating the CGI binary, it's possible to analyze the process procedure or verify the vulnerability without setting up a HTTP server. The following example issues a GET request to a MIPS CGI binary.
 
 ```text
-> sudo chroot . ./qemu-mips-static -E REQUEST_METHOD="POST" -E REQUEST_URI=<request_uri> -E REMOTE_ADDR=<ip_addr> -E HTTP_COOKIE=<custom_cookie> -g <port> <path to cgi binary>
+~/DIR850L/squashfs-root/htdocs/web$ ls -l captcha.cgi
+lrwxrwxrwx 1 root root     14 Oct 17  2017 captcha.cgi -> /htdocs/cgibin
+
+# fix the broken symbolic link
+~/DIR850L/squashfs-root/htdocs/web$ rm captcha.cgi && ln -s ../cgibin captcha.cgi
+
+~/DIR850L/squashfs-root$ sudo chroot . ./qemu-mips-static -E REQUEST_METHOD="GET" -E REQUEST_URI="/captcha.cgi" -E REMOTE_ADDR="192.168.1.1" -E CONTENT_TYPE="text/html" /htdocs/web/captcha.cgi
+HTTP/1.1 200 OK
+Content-Type: text/xml
+
+<?xml version="1.0" encoding="utf-8"?><captcha>
+    <result>FAIL</result><message>NO SESSION</message>
+</captcha>
 ```
 
 With the target binary emulated, interact with its interpreter or listening service. Fuzz its application and network interfaces as noted in the next phase.

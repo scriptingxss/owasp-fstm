@@ -111,7 +111,7 @@ hexdump -C <bin> | head # might find signatures in header
 If none of the above methods provide any useful data, the following is possible:
 
 * Binary may be BareMetal
-* Binary may be for a real time operating system \(RTOS\) platform with custom a custom filesystem
+* Binary may be for a real time operating system \(RTOS\) platform with a custom filesystem
 * Binary may be encrypted
 
 If the binary may be encrypted, check the entropy using binwalk with the following command:
@@ -421,7 +421,7 @@ Below, is an example of emulating a service that listens on port 5515.
 > sudo chroot . ./qemu-arm-static usr/bin/shellback
 ```
 
-In another terminal, check if the service is listening locally and try to connect to it.
+In another terminal, check if the service is listening locally and try to connect to it with netcat.
 
 ```text
 > sudo lsof -i :5515
@@ -447,6 +447,7 @@ When possible, use automation tools such as firmadyne, firmware analysis toolkit
 * [https://github.com/attify/firmware-analysis-toolkit](https://github.com/attify/firmware-analysis-toolkit)
 * [https://github.com/therealsaumil/armx/](https://github.com/therealsaumil/armx/)
 * [https://github.com/firmadyne/firmadyne](https://github.com/firmadyne/firmadyne)
+* [https://github.com/qilingframework/qiling\#qltool](https://github.com/qilingframework/qiling#qltool)
 
 Using firmware analysis toolkit, simply execute the following command:
 
@@ -590,7 +591,7 @@ If a root shell has already been obtained from dynamic analysis, bootloader mani
    * `set LPORT 445 #can be any unused port`
    * `set ExitOnSession false`
    * `exploit -j -z`
-5. Execute the meterpreter reverse shell on the compromised device
+5. Execute the meterpreter reverse 🐚 on the compromised device
 6. Watch meterpreter sessions open
 7. Perform post exploitation activities
 8. $$$$$$$$$$$$$$$$
@@ -667,7 +668,9 @@ To practice discovering vulnerabilities in firmware, use the following vulnerabl
 
 **Feedback and contributing**
 
-If you would like to contribute or provide feedback to improve this methodology, contact [Aaron.guzman@owasp.org](mailto:Aaron.guzman@owasp.org) \([@scriptingxss](https://twitter.com/scriptingxss?)\). Special thanks to our sponsors Cisco Meraki, OWASP Inland Empire, and OWASP Los Angeles as well as José Alejandro Rivas Vidal for his careful review.
+If you would like to contribute or provide feedback to improve this methodology, contact [Aaron.guzman@owasp.org](mailto:Aaron.guzman@owasp.org) \([@scriptingxss](https://twitter.com/scriptingxss?)\). Make sure to open up an [issue](https://github.com/scriptingxss/owasp-fstm/issues) or a [pull request](https://github.com/scriptingxss/owasp-fstm/pulls), and we'll make sure to tend to it! 
+
+Special thanks to our sponsors Cisco Meraki, OWASP Inland Empire, and OWASP Los Angeles as well as José Alejandro Rivas Vidal for his careful review.
 
 **License**
 

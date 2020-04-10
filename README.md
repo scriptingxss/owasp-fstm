@@ -384,13 +384,13 @@ FACT分析结果
 
 **Example：**
 
-1. busybox
+* busybox
 
 ```text
 sudo chroot . ./qemu-arm-static bin/busybox ls
 ```
 
-1. shellback 开启5515上的侦听服务
+* shellback 开启5515上的侦听服务
 
 ```text
 sudo chroot . ./qemu-arm-static usr/bin/shellback
@@ -403,7 +403,7 @@ sudo lsof -i:5515
 nc -nv 127.0.0.1 5515
 ```
 
-1. MIPS CGI 二进制文件，向该文件发出POST请求
+* MIPS CGI 二进制文件，向该文件发出POST请求
 
 ```text
 sudo chroot . ./qemu-mips-static -E REQUEST_METHOD="POST" -E REQUEST_URI=<request_uri> -E REMOTE_ADDR=<ip_addr> -E HTTP_COOKIE=<custom_cookie> -g <port> <path to cgi binary>

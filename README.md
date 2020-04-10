@@ -6,6 +6,8 @@ description: >-
 
 # 安全性测试和固件的逆向分析
 
+![](.gitbook/assets/fstm_cover.png)
+
 我们基于 FSTM 进行测试流程如下：
 
 | id | 阶段 | 描述 |
@@ -596,5 +598,13 @@ exploit -j -z
 
 ### 参考
 
-[https://scriptingxss.gitbook.io/firmware-security-testing-methodology/\#partial-emulation-user-mode-emulation](https://scriptingxss.gitbook.io/firmware-security-testing-methodology/#partial-emulation-user-mode-emulation)
+{% embed url="https://scriptingxss.gitbook.io/firmware-security-testing-methodology/\#partial-emulation-user-mode-emulation" %}
+
+**License**
+
+[Creative Commons Attribution Share Alike 4.0 International](https://github.com/scriptingxss/owasp-fstm/blob/master/License.md)
+
+![](.gitbook/assets/14.png)
+
+![](.gitbook/assets/15.png)
 

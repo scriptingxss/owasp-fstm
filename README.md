@@ -596,10 +596,6 @@ exploit -j -z
 * [ARM-X](https://github.com/therealsaumil/armx#downloads)
 * [Azeria Labs VM 2.0](https://azeria-labs.com/lab-vm-2-0/)
 
-### 参考
-
-{% embed url="https://scriptingxss.gitbook.io/firmware-security-testing-methodology/\#partial-emulation-user-mode-emulation" %}
-
 **License**
 
 [Creative Commons Attribution Share Alike 4.0 International](https://github.com/scriptingxss/owasp-fstm/blob/master/License.md)

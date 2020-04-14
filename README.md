@@ -646,6 +646,7 @@ A combination of tools will be used throughout assessing firmware. Listed below,
 * [Openocd](http://openocd.org/)
 * [Angr binary analysis framework](https://github.com/angr/angr)
 * [Binary Analysis Tool](http://www.binaryanalysis.org/en/home)
+* [Binary Analysis Platform](https://github.com/binaryanalysisplatform/bap)
 * [Checksec.sh](https://github.com/slimm609/checksec.sh)
 * [CHIPSEC](https://github.com/chipsec/chipsec)
 * [Qiling Advanced Binary Emulation Framework](https://github.com/qilingframework/qiling)
@@ -665,12 +666,16 @@ To practice discovering vulnerabilities in firmware, use the following vulnerabl
   * [https://github.com/therealsaumil/armx\#downloads](https://github.com/therealsaumil/armx#downloads)
 * Azeria Labs VM 2.0
   * [https://azeria-labs.com/lab-vm-2-0/](https://azeria-labs.com/lab-vm-2-0/)
+* Damn Vulnerable IoT Device \(DVID\)
+  * [https://github.com/Vulcainreo/DVID](https://github.com/Vulcainreo/DVID)
 
 **Feedback and contributing**
 
 If you would like to contribute or provide feedback to improve this methodology, contact [Aaron.guzman@owasp.org](mailto:Aaron.guzman@owasp.org) \([@scriptingxss](https://twitter.com/scriptingxss?)\). Make sure to open up an [issue](https://github.com/scriptingxss/owasp-fstm/issues) or a [pull request](https://github.com/scriptingxss/owasp-fstm/pulls), and we'll make sure to tend to it! 
 
 Special thanks to our sponsors Cisco Meraki, OWASP Inland Empire, and OWASP Los Angeles as well as José Alejandro Rivas Vidal for his careful review.
+
+The full list of contributors can be found via [https://github.com/scriptingxss/owasp-fstm/graphs/contributors](https://github.com/scriptingxss/owasp-fstm/graphs/contributors). 
 
 **License**
 

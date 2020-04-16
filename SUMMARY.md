@@ -1,4 +1,4 @@
 # Table of contents
 
-* [Firmware Security Testing Methodology](README.md)
+* [OWASP Firmware Security Testing Methodology](README.md)
 

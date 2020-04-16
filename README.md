@@ -1,3 +1,4 @@
+
 ---
 description: >-
   FSTM is composed of nine stages tailored to enable security researchers,
@@ -692,8 +693,3 @@ The full list of contributors can be found via [https://github.com/scriptingxss/
 **License**
 
 [Creative Commons Attribution Share Alike 4.0 International](https://github.com/scriptingxss/owasp-fstm/blob/master/License.md)
-
-![](.gitbook/assets/14.png)
-
-![](.gitbook/assets/15.png)![](.gitbook/assets/16.png)
-

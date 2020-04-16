@@ -7,8 +7,6 @@ description: >-
 
 # OWASP Firmware Security Testing Methodology
 
-## OWASP Firmware Security Testing Methodology
-
 ![](.gitbook/assets/fstm_cover.png)
 
 Whether network connected or standalone, firmware is the center of controlling any embedded device. As such, it is crucial to understand how firmware can be manipulated to perform unauthorized functions and potentially cripple the supporting ecosystem’s security. To get started with performing security testing and reverse engineering of firmware, use the following methodology as guidance when embarking on an upcoming assessment. The methodology is composed of nine stages tailored to enable security researchers, software developers, consultants, hobbyists, and Information Security professionals with conducting firmware security assessments.
@@ -695,6 +693,5 @@ The full list of contributors can be found via [https://github.com/scriptingxss/
 
 [Creative Commons Attribution Share Alike 4.0 International](https://github.com/scriptingxss/owasp-fstm/blob/master/License.md)
 
-![](.gitbook/assets/16.png)
-![](.gitbook/assets/15.png)
-![](.gitbook/assets/14.png)
+![](.gitbook/assets/16.png) ![](.gitbook/assets/15.png) ![](.gitbook/assets/14.png)
+

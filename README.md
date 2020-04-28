@@ -97,15 +97,18 @@ Each of the listed methods vary in difficulty and should not be considered an ex
 
 Once the firmware image is obtained, explore aspects of the file to identify its characteristics. Use the following steps to analyze firmware file types, potential root filesystem metadata, and gain additional understanding of the platform it's compiled for.
 
-Leverage binutils such as:
+Leverage utilities such as:
 
 ```text
 file <bin>  
 strings  
-strings -n5 <bin>  
+strings -n5 <bin> 
+strings -n16 <bin>#longer than 16
+strings -tx <bin> #print offsets in hex 
 binwalk <bin>  
 hexdump -C -n 512 <bin> > hexdump.out  
 hexdump -C <bin> | head # might find signatures in header
+fdisk -lu <bin> #lists a drives partition and filesystems if multiple
 ```
 
 If none of the above methods provide any useful data, the following is possible:
@@ -120,7 +123,7 @@ If the binary may be encrypted, check the entropy using binwalk with the followi
 
 Low entropy = Not likely to be encrypted
 
-High entropy = It's likely encrypted \(or compressed in some way\).
+High entropy = Its likely encrypted \(or compressed in some way\).
 
 Alternate tools are also available using Binvis online and the standalone application.
 

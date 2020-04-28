@@ -659,8 +659,10 @@ A combination of tools will be used throughout assessing firmware. Listed below,
 * [Angr binary analysis framework](https://github.com/angr/angr)
 * [Binary Analysis Tool](http://www.binaryanalysis.org/en/home)
 * [Binary Analysis Platform](https://github.com/binaryanalysisplatform/bap)
+* [BINSEC](https://binsec.github.io/)
 * [Checksec.sh](https://github.com/slimm609/checksec.sh)
 * [CHIPSEC](https://github.com/chipsec/chipsec)
+* [Capstone Engine](https://github.com/aquynh/capstone)
 * [Qiling Advanced Binary Emulation Framework](https://github.com/qilingframework/qiling)
 * [Triton dynamic binary analysis \(DBA\) framework](https://triton.quarkslab.com/)
 

@@ -8,7 +8,7 @@ description: >-
 
 ![](.gitbook/assets/fstm_cover.png)
 
-### 前景
+## 前景
 
 我们基于 FSTM 进行测试流程如下：
 
@@ -24,7 +24,7 @@ description: >-
 | 8 | 运行时分析 | 在设备运行时分析编译的二进制文件 |
 | 9 | 二进制利用 | 利用上述手段发现的漏洞实现命令执行 |
 
-### 0x01：信息搜集
+## 0x01：信息搜集
 
 可搜集与固件相关如下基础信息：
 
@@ -55,27 +55,19 @@ description: >-
 * 开源软件有其自身的静态分析工具 ，Example：
   * [Coverity](https://scan.coverity.com/) 对 [Das U-Boot](http://www.denx.de/wiki/U-Boot/WebHome)进行的分析
 
- 
-
 ![U-Boot Coverity Scan](.gitbook/assets/3.png)
-
- 
 
 ![U-Boot Coverity Scan Analysis](.gitbook/assets/4.png)
 
 * semmle的[LGTM](https://lgtm.com/#explore)对Dropbear的分析：
 
- 
-
 ![LGTM Dropbear Alerts](.gitbook/assets/5.png)
-
- 
 
 ![LGTM Dropbear Results](.gitbook/assets/6.png)
 
 获取如上信息后便可进行粗略的威胁建模：标识出可攻击功能点和影响范围，方便测试时进行漏洞点的贯穿使用。
 
-### 0x02：获取固件
+## 0x02：获取固件
 
 * 直接从开发团队、制造商/供应商或用户获取
 * 使用制造商提供的项目从头编译
@@ -91,7 +83,7 @@ description: >-
 * 从主板卸下闪存芯片（如：SPI ）或 MCU，以进行离线分析和数据提取
   * 需要相应的芯片编辑器来存储 flash/MCU
 
-### 0x03：分析固件
+## 0x03：分析固件
 
 获取固件后需要分析其特征信息：固件文件类型、潜在的根文件元数据、编译基于的平台，使用 `binutils` 分析过程如下：
 
@@ -119,7 +111,7 @@ hexdump -C <bin> | head # might find signatures in header
   * [https://code.google.com/archive/p/binvis/](https://code.google.com/archive/p/binvis/)
   * [https://binvis.io/\#/](https://binvis.io/#/)
 
-### 0x04：提取文件系统
+## 0x04：提取文件系统
 
 * 固件：一个二进制文件的压缩包，文件系统是其中的一个组件，存储在二进制文件的特定偏移地址中，且有一定大小。
 * 文件系统类型：squashfs , ubifs , romfs , rootfs , jffs2 , yaffs2 , cramfs , initramfs
@@ -156,9 +148,9 @@ hexdump -C <bin> | head # might find signatures in header
               ubireader_extract_images -u UBI -s <start_offset> <bin>、ubidump.py <bin>
       ```
 
-### 0x05：分析文件系统内容
+## 0x05：分析文件系统内容
 
-#### 手动分析
+### 手动分析
 
 静态分析文件系统可从如下方面入手：
 
@@ -171,7 +163,7 @@ hexdump -C <bin> | head # might find signatures in header
 
 同时，此过程中分析的结果，可为动态分析做基础准备。
 
-#### 自动分析：firmwalker
+### 自动分析：firmwalker
 
 `firmwalker` 分析内容范围如下：
 
@@ -203,7 +195,7 @@ hexdump -C <bin> | head # might find signatures in header
 
 分析结果存储在 `/data/` 目录下的两个文件：`firmwalker.txt` 和 `firmwalkerappsec.txt`，需手动检查这些文件。
 
-#### 自动分析：FACT
+### 自动分析：FACT
 
 FACT 固件分析比较工具包分析内容如下：
 
@@ -228,34 +220,24 @@ sudo ./start_all_installed_fact_components
 
 浏览器访问：[http://127.0.0.1:5000](http://127.0.0.1:5000) ，
 
-  
-
 ![FACT Dashboard](.gitbook/assets/8.png)
 
 将固件上传到FACT进行分析（可以将带有文件系统的完整固件）
-
- 
 
 ![FACT Upload](.gitbook/assets/10.png)
 
 根据给FACT硬件资源，扫描时间会相应不同
 
- 
-
 ![FACT IoTGoat](.gitbook/assets/10.png)
 
 FACT分析结果
 
- 
-
 ![FACT IoTGoat Exploit Mitigation Results](.gitbook/assets/11.png)
 
-#### 二进制文件分析：
+### 二进制文件分析：
 
 * 可使用工具： `IDA Pro`、`Ghidra`、`Hopper`、`Capstone` 或 `binary Ninja` 进行分析。
   * 使用Ghidra对二进制文件“shellback”的分析如下
-
-  
 
 ![Shellback Ghidra Analysis](.gitbook/assets/12.png)
 
@@ -335,13 +317,11 @@ FACT分析结果
 ./checksec --file=/home/embedos/firmware/_IoTGoat-x86-generic-combined-squashfs.img.extracted/squashfs-root/usr/bin/shellback
 ```
 
-  
-
 ![Checksec.sh](.gitbook/assets/13.png)
 
 对于 Microsoft 二进制文件（EXE、DLL），使用 [PESecurity](https://github.com/NetSPI/PESecurity) 检查 `ASLR`, `DEP`, `SafeSEH`, `StrongNaming`, `Authenticode`, `Control Flow Guard` 和 `HighEntropyVA`。
 
-### 0x06：仿真固件
+## 0x06：仿真固件
 
 为了确定及验证上面的详细信息、线索、潜在的漏洞，必需模拟固件及其封装的二进制文件。
 
@@ -351,7 +331,7 @@ FACT分析结果
 * 完整的系统仿真—完整的固件仿真和利用伪造的`NVRAM`启动配置
 * 由于硬件或体系结构的依赖性，`user mode` 或 `system mode` 可能无法仿真固件成功。在这种情况下，可以将根文件系统或特定二进制文件传输到与目标固件的架构和字节序匹配的物理设备中进行测试，除了物理设备外，也可以使用与目标固件相同体系结构或字节序的预构件虚拟机。
 
-#### 部分仿真（ user mode ）
+### 部分仿真（ user mode ）
 
 * 获取目标的 CPU 架构和字节序，然后选择适当的 QEMU 仿真二进制文件
   * CPU 架构获取：
@@ -413,7 +393,7 @@ sudo chroot . ./qemu-mips-static -E REQUEST_METHOD="POST" -E REQUEST_URI=<reques
 
 通过上述手段模拟了目标二进制文件，可以使用其应用程序和网络接口，与其进行交互。
 
-#### 全系统仿真（ system mode ）
+### 全系统仿真（ system mode ）
 
 使用自动化工具来进行固件的完整仿真
 
@@ -426,7 +406,7 @@ sudo chroot . ./qemu-mips-static -E REQUEST_METHOD="POST" -E REQUEST_URI=<reques
 
 需注意：固件中包含不常见的压缩文件系统或不支持的体系结构，可能需要修改这些工具
 
-### 0x07：动态分析
+## 0x07：动态分析
 
 设备在正常运行或者在仿真环境中运行中的动态测试，此阶段的测试可能会由于项目和访问级别有所差异。
 
@@ -446,7 +426,7 @@ sudo chroot . ./qemu-mips-static -E REQUEST_METHOD="POST" -E REQUEST_URI=<reques
   * `Metasploit`
   * ...
 
-#### 嵌入式Web应用程序测试
+### 嵌入式Web应用程序测试
 
 **检查方向：**
 
@@ -458,7 +438,7 @@ sudo chroot . ./qemu-mips-static -E REQUEST_METHOD="POST" -E REQUEST_URI=<reques
 * 跟踪观察应用程序中的参数查看异常点和堆栈溢出点
   * 常见的 C/C++ 漏洞、常见的嵌入式 Web 应用程序的有效负载，如：内存损坏漏洞、格式字符串缺陷、整数溢出
 
-#### 引导加载程序测试
+### 引导加载程序测试
 
 修改设备的引导加载程序时，可以进行如下操作：
 
@@ -492,7 +472,7 @@ mtdparts=sflash:<partitiionInfo> rootfstype=<fstype> hasEeprom=0 5srst=0 init=/b
 * 使用恶意参数配置恶意 DHCP 服务器作为设备在 PXE 引导期间提取的输入
   * 使用 Metasploit DHCP 辅助服务器，进行命令注入，比如修改参数 `FILENAME` 为 `a";/bin/sh;#`，来测试设备启动过程的输入验证
 
-#### 固件完整性测试
+### 固件完整性测试
 
 尝试上传自定义固件或编译过的二进制文件，来检测完整性或签名验证漏洞。
 
@@ -538,7 +518,7 @@ exploit -j -z
 
 最后，尽可能的在启动脚本中设置对设备持久访问的后门，保证重新启动后也有设备的访问控制权
 
-### 0x08：运行时分析
+## 0x08：运行时分析
 
 设备在正常运行或在仿真环境中运行时，对正在运行的进程或二进制文件进行调试。如下是分析步骤：
 
@@ -559,7 +539,7 @@ exploit -j -z
 * Binary Ninja
 * Hopper
 
-### 0x09：漏洞利用
+## 0x09：漏洞利用
 
 通过上面阶段的测试识别出漏洞之后，需使用PoC在真实环境中进行验证。编写漏洞利用代码需要掌握低级语言（如：ASM、C/C++、shellcode 等）的编程及了解一些目标体系结构（如：MIPS、ARM、x86等）。
 
@@ -572,7 +552,7 @@ exploit -j -z
 * [https://azeria-labs.com/writing-arm-shellcode/](https://azeria-labs.com/writing-arm-shellcode/)
 * [https://www.corelan.be/index.php/category/security/exploit-writing-tutorials/](https://www.corelan.be/index.php/category/security/exploit-writing-tutorials/)
 
-### 固件和二进制文件分析工具
+## 固件和二进制文件分析工具
 
 * [Firmware Analysis Comparison Toolkit\(FACT\)](https://github.com/fkie-cad/FACT_core)
 * [FWanalyzer](https://github.com/cruise-automation/fwanalyzer)
@@ -590,7 +570,7 @@ exploit -j -z
 * [Qiling Advanced Binary Emulation Framework](https://github.com/qilingframework/qiling)
 * [Triton dynamic binary analysis \(DBA\) framework](https://triton.quarkslab.com/)
 
-### 用于练习的固件项目
+## 用于练习的固件项目
 
 * [OWASP IoTGoat](https://github.com/OWASP/IoTGoat)
 * [The Damn Vulnerable Router Firmware Project](https://github.com/praetorian-code/DVRF)

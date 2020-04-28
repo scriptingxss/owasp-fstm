@@ -424,6 +424,12 @@ Below, is an example of emulating a service that listens on port 5515.
 > sudo chroot . ./qemu-arm-static usr/bin/shellback
 ```
 
+Also, the same service can be emulated with qiling framework.
+
+```text
+> ./qltool run --console False -f ~/_IoTGoat-x86.img.extracted/squashfs-root/usr/bin/shellback --rootfs ~/_IoTGoat-x86.img.extracted/squashfs-root
+```
+
 In another terminal, check if the service is listening locally and try to connect to it with netcat.
 
 ```text

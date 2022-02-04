@@ -675,6 +675,7 @@ A combination of tools will be used throughout assessing firmware. Listed below,
 * [Capstone Engine](https://github.com/aquynh/capstone)
 * [Qiling Advanced Binary Emulation Framework](https://github.com/qilingframework/qiling)
 * [Triton dynamic binary analysis \(DBA\) framework](https://triton.quarkslab.com/)
+* [EMBA - The firmware security analyzer](https://github.com/e-m-b-a/emba)
 
 ### Vulnerable firmware
 

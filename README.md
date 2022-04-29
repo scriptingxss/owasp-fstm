@@ -365,17 +365,19 @@ For Microsoft binaries \(EXE & DLL\), use [PESecurity](https://github.com/NetSPI
 * Firmware extraction via a highly optimized extraction environment
 * Firmware extraction of not common systems (e.g. QNAP firmware, D\'Link encrypted firmware, EnGenius encrypted firmware, VMDK files)
 * *EMBA* is not only Linux focused - also RTOS systems like VxWorks can be analyzed
+* Automatic extraction of docker containers and analysis of these containers
 * Identification of firmware details like operating system, CPU architecture, and third-party components along with their associated version information
-* User mode emulation of filesystem binaries using QEMU for identification of version details
+* User-mode emulation of filesystem binaries using QEMU for identification of version details
 * Static analysis of filesystem binaries for identification of version details
 * Identification of known vulnerabilities and corresponding CVE\'s
-* Identification of public exploits, Metasploit modules and PoC\'s
+* Identification of [public exploits](https://www.exploit-db.com/), [Metasploit modules](https://www.metasploit.com/) and PoC\'s
 * Detection of certificates, private keys, password hashes and passwords
 * Detection of binary mitigations such as NX, DEP, ASLR, stack canaries, RELRO, and FORTIFY\_SOURCE
-* Detection of legacy binary functions
+* Detection of legacy binary functions (e.g. strcpy)
+* Threading mode for maximum performance
+* Pre-configured docker images are available and easy to install
 * Interactive HTML report for analysis tear down
 * Web based enterprise environment via *[EMBArk](https://github.com/e-m-b-a/embark)*
-* Pre-configured docker images are available and easy to install
 * and more...
 
 ##### System requirements:
@@ -391,13 +393,61 @@ For Microsoft binaries \(EXE & DLL\), use [PESecurity](https://github.com/NetSPI
 To install the necessary environment, you have to run the install script with root permissions:   
 ```
 sudo ./installer.sh -d
-```  
-   
+```
+
 You should use the `-d` switch with the installer to run a typical installation. This will install needed dependencies (e.g. cve-search) on the host. Additionally it will download the *EMBA* docker image. *We recommend using this for the initial installation.*
 
 ##### Usage of EMBA
 
-After the 
+After the installation process is finished it is possible to use *EMBA* for further firmware security analysis via the command line. Before starting *EMBA* please download a testing firmware like the [OWASP IoTGoat firmware](https://github.com/OWASP/IoTGoat).
+
+```
+sudo ./emba.sh -f ~/IoTGoat-x86.img.gz -l ~/emba_logs_iotgoat -p ./scan-profiles/default-scan.emba
+```
+The first step of every firmware test is a health check of the current installation:
+
+![](.gitbook/assets/EMBA_01.png)
+
+After the health check was successful the analysis process starts with identification and extraction of the configured firmware:
+
+![](.gitbook/assets/EMBA_02.png)
+
+While testing the firmware all the results and the current status is shown in the terminal. As a typical scan will run in threaded mode (*-t parameter*), this output is somehow mixed and not very easy to analyze. For further analysis it is recommend to use the generated text based log files in the log directory and a web report (*-W parameter*).
+After finishing the firmware scan, *EMBA* shows a summary of the results in the terminal:
+
+![](.gitbook/assets/EMBA_03.png)
+
+Further results are available in the log directory and can be analyzed on the command line or via the web-browser:
+
+```
+firefox ~/emba_logs_iotgoat/html-report/index.html
+```
+![](.gitbook/assets/EMBA_04.png)
+
+The generated HTML report is self-contained and can be shared easily.
+Additionally this report is fully interactive and it is possible to reach all the testing details from the aggregated summary dashboard.
+
+Further details are available via the official *[EMBA git repository](https://github.com/e-m-b-a/emba)*.
+
+#### EMBArk - The enterprise firmware scanning environment
+
+*EMBArk* is the web based enterprise interface for the firmware security scanner *EMBA*. It is developed to provide the firmware security analyzer *[EMBA](https://github.com/e-m-b-a/emba)* as a containerized service and to ease accessibility to the firmware scanning backend *EMBA* regardless of system and operating system.
+
+Furthermore *EMBArk* improves the data provision by aggregating the various scanning results in an [aggregated management dashboard](https://github.com/e-m-b-a/embark/wiki/Web-interface#main-dashboard).
+
+![](.gitbook/assets/EMBArk_01.png)
+
+The details page of all scans allows access to the detailed report of a firmware scan, initiate further tests and download the scan logs:
+
+![](.gitbook/assets/EMBArk_02.png)
+
+Further details with main results of every firmware test are available via the details report:
+
+![](.gitbook/assets/EMBArk_03.png)
+
+Further details are available via the official *[EMBArk git repository](https://github.com/e-m-b-a/embark)*.
+
+*Note:* *EMBArk* is in a very early development stage.
 
 ### **\[Stage 6\] Emulating firmware**
 

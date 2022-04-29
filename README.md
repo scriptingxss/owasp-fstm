@@ -356,6 +356,49 @@ Figure : Checksec.sh
 
 For Microsoft binaries \(EXE & DLL\), use [PESecurity](https://github.com/NetSPI/PESecurity) to check for ASLR, DEP, SafeSEH, StrongNaming, Authenticode, Control Flow Guard, and HighEntropyVA.
 
+#### EMBA - Embedded Analyzer
+
+*[EMBA](https://github.com/e-m-b-a/emba)* is designed as the central firmware analysis tool for penetration testers. It supports the complete security analysis process starting with the *firmware extraction* process, doing *static analysis* and *dynamic analysis* via emulation and finally generating a report. *EMBA* automatically discovers possible weak spots and vulnerabilities in firmware. Examples are insecure binaries, old and outdated software components, potentially vulnerable scripts or hard-coded passwords. *EMBA* is a command line tool with the option to generate an easy to use web report for further analysis.
+
+*EMBA* features include the following:
+
+* Firmware extraction via a highly optimized extraction environment
+* Firmware extraction of not common systems (e.g. QNAP firmware, D\'Link encrypted firmware, EnGenius encrypted firmware, VMDK files)
+* *EMBA* is not only Linux focused - also RTOS systems like VxWorks can be analyzed
+* Identification of firmware details like operating system, CPU architecture, and third-party components along with their associated version information
+* User mode emulation of filesystem binaries using QEMU for identification of version details
+* Static analysis of filesystem binaries for identification of version details
+* Identification of known vulnerabilities and corresponding CVE\'s
+* Identification of public exploits, Metasploit modules and PoC\'s
+* Detection of certificates, private keys, password hashes and passwords
+* Detection of binary mitigations such as NX, DEP, ASLR, stack canaries, RELRO, and FORTIFY\_SOURCE
+* Detection of legacy binary functions
+* Interactive HTML report for analysis tear down
+* Web based enterprise environment via *[EMBArk](https://github.com/e-m-b-a/embark)*
+* Pre-configured docker images are available and easy to install
+* and more...
+
+##### System requirements:
+
+*EMBA* is using a lot of other tools in the background. The needed system resources depend a lot on the firmware you are going to analyse. Usually *EMBA* runs quite smooth in the following environment:
+* VMware running a current Kali Linux
+* RAM: minimum of 8GB-16GB
+* Processors: minimum of 4-8 CPUs
+* Hard disk: minimum of 30GB-100GB of free disk space
+
+##### Classic installation
+
+To install the necessary environment, you have to run the install script with root permissions:   
+```
+sudo ./installer.sh -d
+```  
+   
+You should use the `-d` switch with the installer to run a typical installation. This will install needed dependencies (e.g. cve-search) on the host. Additionally it will download the *EMBA* docker image. *We recommend using this for the initial installation.*
+
+##### Usage of EMBA
+
+After the 
+
 ### **\[Stage 6\] Emulating firmware**
 
 Using details and clues identified in previous steps, firmware as well as it’s encapsulated binaries must be emulated to verify potential vulnerabilities. To accomplish emulating firmware, there are a few approaches listed below.

@@ -358,31 +358,32 @@ For Microsoft binaries \(EXE & DLL\), use [PESecurity](https://github.com/NetSPI
 
 #### EMBA - Embedded Analyzer
 
-*[EMBA](https://github.com/e-m-b-a/emba)* is designed as the central firmware analysis tool for penetration testers. It supports the complete security analysis process starting with the *firmware extraction* process, doing *static analysis* and *dynamic analysis* via emulation and finally generating a report. *EMBA* automatically discovers possible weak spots and vulnerabilities in firmware. Examples are insecure binaries, old and outdated software components, potentially vulnerable scripts or hard-coded passwords. *EMBA* is a command line tool with the option to generate an easy to use web report for further analysis.
+*[EMBA](https://github.com/e-m-b-a/emba)* is designed as the central firmware analysis tool for penetration testers. It supports the complete security analysis process starting with the *firmware extraction*, doing *static analysis* and *dynamic analysis* via emulation and finally generating a web-based report. *EMBA* automatically discovers possible weak spots and vulnerabilities in the firmware under test. Examples are insecure binaries, old and outdated software components, potentially vulnerable scripts or hard-coded passwords. *EMBA* is a command line tool with the option to generate an easy to use web report for further analysis.
 
 *EMBA* features include the following:
 
 * Firmware extraction via a highly optimized extraction environment
 * Firmware extraction of not common systems (e.g. QNAP firmware, D\'Link encrypted firmware, EnGenius encrypted firmware, VMDK files)
 * *EMBA* is not only Linux focused - also RTOS systems like VxWorks can be analyzed
-* Automatic extraction of docker containers and analysis of these containers
+* Automatic extraction and analysis of docker containers
 * Identification of firmware details like operating system, CPU architecture, and third-party components along with their associated version information
 * User-mode emulation of filesystem binaries using QEMU for identification of version details
 * Static analysis of filesystem binaries for identification of version details
+* Version database with more than 600 version identifiers
 * Identification of known vulnerabilities and corresponding CVE\'s
 * Identification of [public exploits](https://www.exploit-db.com/), [Metasploit modules](https://www.metasploit.com/) and PoC\'s
-* Detection of certificates, private keys, password hashes and passwords
+* Detection of certificates, private keys and password hashes
 * Detection of binary mitigations such as NX, DEP, ASLR, stack canaries, RELRO, and FORTIFY\_SOURCE
 * Detection of legacy binary functions (e.g. strcpy)
 * Threading mode for maximum performance
 * Pre-configured docker images are available and easy to install
-* Interactive HTML report for analysis tear down
+* Interactive HTML report for further tear down of the automated analysis
 * Web based enterprise environment via *[EMBArk](https://github.com/e-m-b-a/embark)*
 * and more...
 
 ##### System requirements:
 
-*EMBA* is using a lot of other tools in the background. The needed system resources depend a lot on the firmware you are going to analyse. Usually *EMBA* runs quite smooth in the following environment:
+*EMBA* is using multiple other tools in the background. The needed system resources depend a lot on the firmware you are going to analyse. Usually *EMBA* runs quite smooth in the following environment:
 * VMware running a current Kali Linux
 * RAM: minimum of 8GB-16GB
 * Processors: minimum of 4-8 CPUs
@@ -399,11 +400,18 @@ You should use the `-d` switch with the installer to run a typical installation.
 
 ##### Usage of EMBA
 
-After the installation process is finished it is possible to use *EMBA* for further firmware security analysis via the command line. Before starting *EMBA* please download a testing firmware like the [OWASP IoTGoat firmware](https://github.com/OWASP/IoTGoat).
+After the installation process is finished it is possible to use *EMBA* for further firmware security analysis via the command line. Before starting *EMBA* please download a testing firmware like the [OWASP IoTGoat firmware](https://github.com/OWASP/IoTGoat). The following command line shows a typical *EMBA* command:
 
 ```
 sudo ./emba.sh -f ~/IoTGoat-x86.img.gz -l ~/emba_logs_iotgoat -p ./scan-profiles/default-scan.emba
 ```
+The shown command configures the following basic options:
+* -f - Firmware file
+* -l - Directory for logs
+* -p - Scan profile to use (located in ./scan-profiles)
+
+Further options are available and can be shown via `./emba.sh -h`
+
 The first step of every firmware test is a health check of the current installation:
 
 ![](.gitbook/assets/EMBA_01.png)
@@ -412,7 +420,7 @@ After the health check was successful the analysis process starts with identific
 
 ![](.gitbook/assets/EMBA_02.png)
 
-While testing the firmware all the results and the current status is shown in the terminal. As a typical scan will run in threaded mode (*-t parameter*), this output is somehow mixed and not very easy to analyze. For further analysis it is recommend to use the generated text based log files in the log directory and a web report (*-W parameter*).
+While testing the firmware, all the results and the current status is shown live in the terminal. As a typical scan will run in threaded mode (*-t parameter*), this output is somehow scrambled and not very easy to analyze. For further analysis it is recommend to use the generated text based log files in the log directory and the web report (*-W parameter*).
 After finishing the firmware scan, *EMBA* shows a summary of the results in the terminal:
 
 ![](.gitbook/assets/EMBA_03.png)

@@ -358,7 +358,7 @@ For Microsoft binaries \(EXE & DLL\), use [PESecurity](https://github.com/NetSPI
 
 #### EMBA - Embedded Analyzer
 
-*[EMBA](https://github.com/e-m-b-a/emba)* is designed as the central firmware analysis tool for penetration testers. It supports the complete security analysis process starting with the *firmware extraction*, doing *static analysis* and *dynamic analysis* via emulation and finally generating a web-based report. *EMBA* automatically discovers possible weak spots and vulnerabilities in the firmware under test. Examples are insecure binaries, old and outdated software components, potentially vulnerable scripts or hard-coded passwords. *EMBA* is a command line tool with the option to generate an easy to use web report for further analysis.
+*[EMBA](https://github.com/e-m-b-a/emba)* is designed as core firmware analysis tool for penetration testers. It supports the full security analysis process, starting with the *firmware extraction*, *static analysis* and *dynamic analysis* via emulation to generating a web-based report for further analysis. Launched with a single command, *EMBA* automatically discovers potential weak spots and vulnerabilities in the firmware under test, such as insecure binaries, old and outdated software components, potentially vulnerable scripts or hard-coded passwords.
 
 *EMBA* features include the following:
 
@@ -367,42 +367,42 @@ For Microsoft binaries \(EXE & DLL\), use [PESecurity](https://github.com/NetSPI
 * *EMBA* is not only Linux focused - also RTOS systems like VxWorks can be analyzed
 * Automatic extraction and analysis of docker containers
 * Identification of firmware details like operating system, CPU architecture, and third-party components along with their associated version information
-* User-mode emulation of filesystem binaries using QEMU for identification of version details
-* Static analysis of filesystem binaries for identification of version details
+* User-mode emulation of filesystem binaries using QEMU to identify of version details
+* Static analysis of filesystem binaries to identify of version details
 * Version database with more than 600 version identifiers
 * Identification of known vulnerabilities and corresponding CVE\'s
 * Identification of [public exploits](https://www.exploit-db.com/), [Metasploit modules](https://www.metasploit.com/) and PoC\'s
 * Detection of certificates, private keys and password hashes
 * Detection of binary mitigations such as NX, DEP, ASLR, stack canaries, RELRO, and FORTIFY\_SOURCE
 * Detection of legacy binary functions (e.g. strcpy)
-* Threading mode for maximum performance
-* Pre-configured docker images are available and easy to install
+* Parallel execution for maximum performance
+* Pre-configured docker image is available and easy to install
 * Interactive HTML report for further tear down of the automated analysis
 * Web based enterprise environment via *[EMBArk](https://github.com/e-m-b-a/embark)*
-* and more...
+* and more ...
 
 ##### System requirements:
 
 *EMBA* is using multiple other tools in the background. The needed system resources depend a lot on the firmware you are going to analyse. Usually *EMBA* runs quite smooth in the following environment:
 * VMware running a current Kali Linux
 * RAM: minimum of 8GB-16GB
-* Processors: minimum of 4-8 CPUs
-* Hard disk: minimum of 30GB-100GB of free disk space
+* CPU: minimum of 4-8 cores
+* Storage: minimum of 30GB-100GB of free disk space
 
 ##### Classic installation
 
 To install the necessary environment, you have to run the install script with root permissions:   
-```
+```bash
 sudo ./installer.sh -d
 ```
 
-You should use the `-d` switch with the installer to run a typical installation. This will install needed dependencies (e.g. cve-search) on the host. Additionally it will download the *EMBA* docker image. *We recommend using this for the initial installation.*
+You should use the `-d` switch with the installer to run a typical installation. This will install needed dependencies (e.g. cve-search) on the host and will download the *EMBA* docker image. *We recommend using this for the initial installation.*
 
 ##### Usage of EMBA
 
-After the installation process is finished it is possible to use *EMBA* for further firmware security analysis via the command line. Before starting *EMBA* please download a testing firmware like the [OWASP IoTGoat firmware](https://github.com/OWASP/IoTGoat). The following command line shows a typical *EMBA* command:
+After the installation process is finished, it is possible to use *EMBA* for firmware security analysis from the command line. Before starting *EMBA* please download a testing firmware like the [OWASP IoTGoat firmware](https://github.com/OWASP/IoTGoat). The following command shows a typical *EMBA* command:
 
-```
+```bash
 sudo ./emba.sh -f ~/IoTGoat-x86.img.gz -l ~/emba_logs_iotgoat -p ./scan-profiles/default-scan.emba
 ```
 The shown command configures the following basic options:
@@ -410,7 +410,7 @@ The shown command configures the following basic options:
 * -l - Directory for logs
 * -p - Scan profile to use (located in ./scan-profiles)
 
-Further options are available and can be shown via `./emba.sh -h`
+Further options are available and can be viewed via `./emba.sh -h`
 
 The first step of every firmware test is a health check of the current installation:
 
@@ -420,22 +420,22 @@ After the health check was successful the analysis process starts with identific
 
 ![](.gitbook/assets/EMBA_02.png)
 
-While testing the firmware, all the results and the current status is shown live in the terminal. As a typical scan will run in threaded mode (*-t parameter*), this output is somehow scrambled and not very easy to analyze. For further analysis it is recommend to use the generated text based log files in the log directory and the web report (*-W parameter*).
+While testing the firmware, all the results and the current status is shown live in the terminal. As a typical scan will run in threaded mode (*`-t` parameter*), this output will be garbled and not very easy to read. For further analysis it is recommend to use the generated text based log files in the log directory and the web report (*`-W` parameter*).
 After finishing the firmware scan, *EMBA* shows a summary of the results in the terminal:
 
 ![](.gitbook/assets/EMBA_03.png)
 
 Further results are available in the log directory and can be analyzed on the command line or via the web-browser:
 
-```
+```bash
 firefox ~/emba_logs_iotgoat/html-report/index.html
 ```
 ![](.gitbook/assets/EMBA_04.png)
 
 The generated HTML report is self-contained and can be shared easily.
-Additionally this report is fully interactive and it is possible to reach all the testing details from the aggregated summary dashboard.
+Furthermore, this report is fully interactive and it is possible to reach all the testing details through the aggregated summary dashboard.
 
-Further details are available via the official *[EMBA git repository](https://github.com/e-m-b-a/emba)*.
+Further details are available on the official *[EMBA git repository](https://github.com/e-m-b-a/emba)*.
 
 #### EMBArk - The enterprise firmware scanning environment
 
@@ -445,15 +445,15 @@ Furthermore *EMBArk* improves the data provision by aggregating the various scan
 
 ![](.gitbook/assets/EMBArk_01.png)
 
-The details page of all scans allows access to the detailed report of a firmware scan, initiate further tests and download the scan logs:
+On the details page of all scans you can access the detailed report of a firmware scan, start further tests and download the scan logs:
 
 ![](.gitbook/assets/EMBArk_02.png)
 
-Further details with main results of every firmware test are available via the details report:
+More details with the main results of each firmware test are available in the detailed report:
 
 ![](.gitbook/assets/EMBArk_03.png)
 
-Further details are available via the official *[EMBArk git repository](https://github.com/e-m-b-a/embark)*.
+More information are available on the official *[EMBArk git repository](https://github.com/e-m-b-a/embark)*.
 
 *Note:* *EMBArk* is in a very early development stage.
 

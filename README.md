@@ -358,7 +358,7 @@ For Microsoft binaries \(EXE & DLL\), use [PESecurity](https://github.com/NetSPI
 
 #### EMBA - Embedded Analyzer
 
-*[EMBA](https://github.com/e-m-b-a/emba)* is designed as core firmware analysis tool for penetration testers. It supports the full security analysis process, starting with the *firmware extraction*, *static analysis* and *dynamic analysis* via emulation to generating a web-based report for further analysis. Launched with a single command, *EMBA* automatically discovers potential weak spots and vulnerabilities in the firmware under test, such as insecure binaries, old and outdated software components, potentially vulnerable scripts or hard-coded passwords.
+*[EMBA](https://github.com/e-m-b-a/emba)* is designed as a core firmware analysis tool for penetration testers. It supports the full security analysis process, starting with the *firmware extraction*, *static analysis* and *dynamic analysis* via emulation to generating a web-based report for further analysis. Launched with a single command, *EMBA* automatically discovers potential weak spots and vulnerabilities in the firmware under test, such as insecure binaries, old and outdated software components, potentially vulnerable scripts or hard-coded passwords.
 
 *EMBA* features include the following:
 
@@ -367,8 +367,8 @@ For Microsoft binaries \(EXE & DLL\), use [PESecurity](https://github.com/NetSPI
 * *EMBA* is not only Linux focused - also RTOS systems like VxWorks can be analyzed
 * Automatic extraction and analysis of docker containers
 * Identification of firmware details like operating system, CPU architecture, and third-party components along with their associated version information
-* User-mode emulation of filesystem binaries using QEMU to identify of version details
-* Static analysis of filesystem binaries to identify of version details
+* User-mode emulation of filesystem binaries using QEMU to identify version details
+* Static analysis of filesystem binaries to identify version details
 * Version database with more than 600 version identifiers
 * Identification of known vulnerabilities and corresponding CVE\'s
 * Identification of [public exploits](https://www.exploit-db.com/), [Metasploit modules](https://www.metasploit.com/) and PoC\'s
@@ -453,7 +453,7 @@ More details with the main results of each firmware test are available in the de
 
 ![](.gitbook/assets/EMBArk_03.png)
 
-More information are available on the official *[EMBArk git repository](https://github.com/e-m-b-a/embark)*.
+More information is available on the official *[EMBArk git repository](https://github.com/e-m-b-a/embark)*.
 
 *Note:* *EMBArk* is in a very early development stage.
 

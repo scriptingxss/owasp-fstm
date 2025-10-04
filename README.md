@@ -23,9 +23,13 @@ Whether network connected or standalone, firmware is the center of controlling a
 | 8. Runtime analysis | Analyze compiled binaries during device runtime |
 | 9. Binary Exploitation | Exploit identified vulnerabilities discovered in previous stages to attain root and/or code execution |
 
+> **Note:** This firmware-specific methodology complements the [OWASP IoT Security Testing Guide \(ISTG\)](https://owasp.org/owasp-istg/), which provides additional test cases for hardware interfaces, wireless protocols, network services, and user interfaces. For requirements-driven security assessments, the [OWASP IoT Security Verification Standard \(ISVS\)](https://github.com/OWASP/IoT-Security-Verification-Standard-ISVS) defines WHAT security controls must be implemented, while FSTM defines HOW to test firmware components. Use ISVS, ISTG, and FSTM together for comprehensive IoT device security assessments.
+
 The following sections will further detail each stage with supporting examples where applicable. Consider visiting the [OWASP Internet of Things Project](https://owasp.org/www-project-internet-of-things/) page and GitHub repository for the latest methodology updates and forthcoming project releases.
 
-A preconfigured Ubuntu virtual machine \(EmbedOS\) with firmware testing tools used throughout this document can be downloaded via the following [link](https://tinyurl.com/EmbedOS-2020). Details regarding EmbedOS’ tools can be found on GitHub within the following repository [https://github.com/scriptingxss/EmbedOS](https://github.com/scriptingxss/EmbedOS).
+For a complementary approach covering the full IoT device attack surface beyond firmware \(hardware interfaces, wireless protocols, network services, user interfaces\), refer to the [OWASP IoT Security Testing Guide \(ISTG\)](https://owasp.org/owasp-istg/), which provides a component-based testing framework with a comprehensive test case catalog. ISTG can be used alongside FSTM's firmware-specific methodology for complete IoT device security assessments.
+
+A preconfigured Ubuntu virtual machine \(EmbedOS\) with firmware testing tools used throughout this document can be downloaded via the following [link](https://tinyurl.com/EmbedOS-2020). Details regarding EmbedOS' tools can be found on GitHub within the following repository [https://github.com/scriptingxss/EmbedOS](https://github.com/scriptingxss/EmbedOS).
 
 ### **\[Stage 1\] Information gathering and reconnaissance**
 
@@ -548,7 +552,7 @@ More information is available on the official *[EMBArk git repository](https://g
 
 #### Software Bill of Materials \(SBOM\) Generation
 
-As firmware security assessments increasingly require regulatory compliance and supply chain transparency, generating a comprehensive Software Bill of Materials has become essential. As of 2025, SBOMs are mandatory for organizations selling software to the U.S. Government \(Executive Order 14028\), and over 60% of enterprises require SBOMs as part of their cybersecurity practices.
+As firmware security assessments increasingly require regulatory compliance and supply chain transparency, generating a comprehensive Software Bill of Materials has become essential. As of 2025, SBOMs are mandatory for organizations selling software to the U.S. Government \(Executive Order 14028\), and over 60% of enterprises require SBOMs as part of their cybersecurity practices. The OWASP IoT Security Verification Standard \(ISVS\) requirement **V1.1.1** mandates that devices maintain accurate SBOMs, making firmware-level SBOM generation critical for compliance verification.
 
 ##### Why SBOMs Matter for Firmware Security
 
@@ -937,6 +941,112 @@ Utilize the following references for further guidance:
 
 * [https://azeria-labs.com/writing-arm-shellcode/](https://azeria-labs.com/writing-arm-shellcode/)
 * [https://www.corelan.be/index.php/category/security/exploit-writing-tutorials/](https://www.corelan.be/index.php/category/security/exploit-writing-tutorials/)
+
+### **Integrating FSTM with OWASP IoT Security Frameworks**
+
+The OWASP Firmware Security Testing Methodology \(FSTM\) focuses specifically on deep firmware analysis, extraction, emulation, and exploitation. For comprehensive IoT device security assessments, integrate FSTM with complementary OWASP frameworks: the [OWASP IoT Security Testing Guide \(ISTG\)](https://owasp.org/owasp-istg/) for component-based testing, and the [OWASP IoT Security Verification Standard \(ISVS\)](https://github.com/OWASP/IoT-Security-Verification-Standard-ISVS) for requirements-driven assessments.
+
+**ISTG Components Complementing FSTM:**
+
+* **Physical Interfaces \(ISTG-PHY\)** - Hardware debug ports \(UART, JTAG, SWD\) used during FSTM Stage 2 for firmware extraction
+* **Wireless Interfaces \(ISTG-WRLS\)** - WiFi, Bluetooth, Zigbee, LoRa security testing that extends FSTM Stage 7 dynamic analysis
+* **User Interfaces \(ISTG-UI\)** - Web applications, mobile apps, and admin consoles covered in FSTM Stage 7
+* **Data Exchange Services \(ISTG-DES\)** - REST APIs, MQTT, cloud backends that extend FSTM Stage 7 scope
+* **Processing Units \(ISTG-PROC\)** - CPU, MCU, TPM, secure enclave testing beyond firmware scope
+* **Memory \(ISTG-MEM\)** - RAM, flash, EEPROM security not covered by firmware filesystem analysis
+
+**Recommended Integration Workflow:**
+
+1. **Scoping** - Use ISTG's device model to identify all device components and define test scope
+2. **Firmware Analysis** - Execute FSTM Stages 1-9 for comprehensive firmware security assessment
+3. **Component Testing** - Apply ISTG test cases for non-firmware components \(hardware, network, wireless\)
+4. **Documentation** - Report findings using ISTG test case references for standardized communication
+
+**Example Integration Points:**
+
+* **FSTM Stage 2** \(Obtaining firmware\) → Reference **ISTG-PHY** test cases for hardware extraction techniques
+* **FSTM Stage 5** \(Analyzing filesystem\) → Map findings to **ISTG-FW\[INST\]** installed firmware test cases
+* **FSTM Stage 7** \(Dynamic analysis\) → Extend with **ISTG-DES** API testing and **ISTG-WRLS** wireless protocol analysis
+* **FSTM Stage 8** \(Runtime analysis\) → Complement with **ISTG-PROC** processor security test cases
+
+**ISTG Firmware Test Case Categories:**
+
+The ISTG firmware component \(**ISTG-FW**\) includes test cases that align with FSTM stages:
+
+* Information Gathering - Source code disclosure, binaries, implementation details \(aligns with FSTM Stage 1\)
+* Configuration and Patch Management - Outdated software, unnecessary functionality \(aligns with FSTM Stage 5\)
+* Secrets - Hardcoded credentials, unencrypted storage \(aligns with FSTM Stage 5\)
+* Cryptography - Weak algorithms, insecure implementations \(aligns with FSTM Stages 5 & 8\)
+* Firmware Update Mechanism \(**ISTG-FW\[UPDT\]**\) - Secure OTA updates, signature verification
+* Installed Firmware \(**ISTG-FW\[INST\]**\) - Runtime firmware security \(aligns with FSTM Stage 8\)
+
+**When to Use Each Methodology:**
+
+* **Use FSTM** when you need deep technical guidance on firmware extraction, binary analysis, emulation, and exploitation
+* **Use ISTG** when you need a structured checklist covering the entire IoT device attack surface
+* **Use Both** for enterprise IoT security assessments requiring comprehensive coverage and standardized reporting
+
+#### **OWASP ISVS: Requirements-Driven Testing**
+
+The [OWASP IoT Security Verification Standard \(ISVS\)](https://github.com/OWASP/IoT-Security-Verification-Standard-ISVS) defines **WHAT** security controls must be implemented, while FSTM defines **HOW** to test firmware components. ISVS provides a requirements framework that can drive your firmware testing scope and success criteria.
+
+**ISVS Role in Firmware Testing:**
+
+* **Requirements Definition** - ISVS Chapter V3 \(IoT Ecosystem\) and V4 \(Software Platform\) define security requirements for firmware components
+* **Scope Determination** - Use ISVS security levels \(L1: Basic, L2: Standard, L3: Advanced\) to determine FSTM testing depth
+* **Test Planning** - Map ISVS requirements to FSTM stages to ensure comprehensive coverage
+* **Verification** - Use ISVS requirements as acceptance criteria when validating FSTM findings
+
+**Workflow: Requirements → Testing → Verification**
+
+```
+1. Select ISVS Requirements → 2. Execute FSTM Testing → 3. Verify Against ISVS
+         (WHAT)                       (HOW)                    (SUCCESS)
+```
+
+**Mapping ISVS V3 Requirements to FSTM Stages:**
+
+| ISVS Requirement | FSTM Stage | Testing Focus |
+|-----------------|-----------|--------------|
+| V3.1 \(SBOM\) | Stage 5 | Verify SBOM generation from extracted filesystem \(see EMBA SBOM analysis\) |
+| V3.2 \(Third-party Components\) | Stage 5 | Identify outdated libraries, vulnerable dependencies in extracted firmware |
+| V3.3 \(Secure Communication\) | Stage 7 | Dynamic analysis of encrypted channels, certificate validation |
+| V3.4 \(Firmware Update\) | Stage 7 | Test OTA update mechanism security, signature verification |
+| V4.1 \(Memory Protection\) | Stage 8 | Runtime analysis of ASLR, DEP, stack canaries in binary execution |
+| V4.2 \(Cryptography\) | Stage 5 & 8 | Static analysis of crypto implementations, runtime key storage validation |
+
+**ISVS Security Levels and FSTM Testing Depth:**
+
+* **Level 1 \(L1\)** - Basic security: Execute FSTM Stages 1-5 \(reconnaissance, extraction, static analysis\)
+* **Level 2 \(L2\)** - Standard security: Add FSTM Stages 6-7 \(emulation, dynamic analysis\)
+* **Level 3 \(L3\)** - Advanced security: Full FSTM Stages 1-9 \(including runtime analysis and exploitation\)
+
+**Example: Requirements-Driven Firmware Assessment**
+
+```
+Client Request: "Assess IoT device firmware to ISVS Level 2 compliance"
+
+Step 1: Review ISVS V3 and V4 requirements for L2 security level
+Step 2: Execute FSTM Stages 1-7 to collect evidence against ISVS requirements
+Step 3: Document findings using ISVS requirement IDs (e.g., "V3.4 FAIL: No signature verification on firmware updates")
+Step 4: Provide remediation mapped to ISVS controls
+```
+
+**Key ISVS Requirements for Firmware Testing:**
+
+* **V1.1.1** - Device maintains accurate SBOM \(verified via FSTM Stage 5 EMBA analysis\)
+* **V3.2.2** - Third-party components updated to latest versions \(tested via dependency analysis\)
+* **V3.4.1** - Firmware update mechanism uses digital signatures \(tested via FSTM Stage 7 OTA analysis\)
+* **V4.1.1** - Memory protection mechanisms enabled \(verified via FSTM Stage 8 runtime analysis\)
+* **V4.2.1** - Industry-standard cryptography used \(validated via FSTM Stage 5 binary analysis\)
+
+**Resources:**
+
+* OWASP ISVS: [https://github.com/OWASP/IoT-Security-Verification-Standard-ISVS](https://github.com/OWASP/IoT-Security-Verification-Standard-ISVS)
+* OWASP ISTG: [https://owasp.org/owasp-istg/](https://owasp.org/owasp-istg/)
+* ISTG GitHub: [https://github.com/OWASP/owasp-istg](https://github.com/OWASP/owasp-istg)
+* ISTG Firmware Test Cases: [https://owasp.org/owasp-istg/03\_test\_cases/firmware/](https://owasp.org/owasp-istg/03_test_cases/firmware/)
+* OWASP IoT Project: [https://owasp.org/www-project-internet-of-things/](https://owasp.org/www-project-internet-of-things/)
 
 ### **Firmware and binary analysis tool index**
 

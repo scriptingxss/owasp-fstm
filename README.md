@@ -45,29 +45,19 @@ During this stage, collect as much information about the target as possible to u
 * Design and data flow diagrams 
 * Threat models
 * Previous penetration testing reports
-* Bug tracking tickets \(e.g. Jira and bug bounty platforms such as BugCrowd or HackerOne\)
+* Bug tracking tickets \(e.g. GitHub Issues, GitLab Issues\) and public vulnerability disclosure platforms
 
 The above listed information should be gathered prior to security testing fieldwork via a questionnaire or intake form. Ensure to leverage internal product line development teams to acquire accurate and up to date data. Understand applied security controls as well as roadmap items, known security issues, and most concerning risks. If needed, schedule follow up deep dives on particular features in question. Assessments are most successful within a collaborative environment.
 
-Where possible, acquire data using open source intelligence \(OSINT\) tools and techniques. If open source software is used, download the repository and perform both manual as well as automated static analysis against the code base. Sometimes, open source software projects already use free static analysis tools provided by vendors that provide scan results such as [Coverity Scan](https://scan.coverity.com/) and [Semmle’s LGTM](https://lgtm.com/#explore). For example, the screenshots below shows snippets of [Das U-Boot](http://www.denx.de/wiki/U-Boot/WebHome)’s Coverity Scan results.
+Where possible, acquire data using open source intelligence \(OSINT\) tools and techniques. If open source software is used, download the repository and perform both manual as well as automated static analysis against the code base. Sometimes, open source software projects use free static analysis scanning services available for open-source projects. For example, the screenshots below show static analysis results from [Das U-Boot](https://docs.u-boot.org/)'s scans.
 
-![U-Boot Coverity Scan](.gitbook/assets/3.png)
+![U-Boot Static Analysis](.gitbook/assets/3.png)
 
-Figure : U-Boot Coverity Scan
+Figure : U-Boot Static Analysis
 
 ![](.gitbook/assets/4.png)
 
-Figure : U-Boot Coverity Scan Analysis
-
-Below are screenshots of [Dropbear](https://github.com/mkj/dropbear) results from LGTM’s analysis.
-
-![](.gitbook/assets/5.png)
-
-Figure : LGTM Dropbear Alerts
-
-![](.gitbook/assets/6.png)
-
-Figure : LGTM Dropbear Results
+Figure : U-Boot Static Analysis Results
 
 With the information at hand, a light threat model exercise should be performed mapping attack surfaces and impact areas that show the most value in the event of compromise.
 
@@ -125,6 +115,8 @@ Low entropy = Not likely to be encrypted
 
 High entropy = Its likely encrypted \(or compressed in some way\).
 
+> **Note:** As of 2024, Binwalk v3 has been completely rewritten in Rust, providing significantly faster analysis speeds and reduced false positives compared to earlier Python-based versions. The Rust implementation offers improved memory safety, better performance on large firmware images, and enhanced support for modern compression formats and filesystems \(NTFS, APFS\). The command syntax remains compatible with previous versions, making it a drop-in replacement for existing workflows. Installation is available via package managers \(Kali Linux, NixOS\) or the Rust package manager \(cargo\).
+
 Alternate tools are also available using Binvis online and the standalone application.
 
 * Binvis
@@ -142,6 +134,8 @@ This stage involves looking inside firmware and parsing relative filesystem data
 Files will be extracts to " `_binaryname/filesystemtype/`"
 
 Filesystem types: squashfs, ubifs, romfs, rootfs, jffs2, yaffs2, cramfs, initramfs
+
+> **Binwalk v3 Performance Note:** The Rust-based Binwalk v3 offers substantial speed improvements during recursive extraction \(`-e`\) operations, particularly on large firmware images \(>100MB\). The verbose flag \(`-v`\) provides detailed extraction progress, which is especially useful for debugging extraction failures with complex or obfuscated firmware.
 
 2a. Sometimes, binwalk will not have the magic byte of the filesystem in its signatures. In these cases, use binwalk to find the offset of the filesystem and carve the compressed filesystem from the binary and manually extract the filesystem according to its type using the steps below.
 
@@ -234,6 +228,92 @@ See the firmwalker output below.
 
 Two files will be generated, firmwalker.txt and firmwalkerappsec.txt. These output files should be manually reviewed.
 
+#### Static Analysis of Extracted Firmware Code
+
+When firmware source code or decompiled binaries are available, perform static application security testing \(SAST\) to identify security vulnerabilities in C/C++ code before runtime analysis. Focus SAST efforts on two critical vulnerability classes that remain prevalent in embedded firmware:
+
+1. **Memory corruption vulnerabilities** - Buffer overflows, use-after-free, and integer overflows caused by unsafe C/C++ functions
+2. **OS command injection** - Vulnerabilities where user input is passed unsafely to shell commands or system calls
+
+> **Critical Finding:** As of 2025, these vulnerability classes continue to plague devices from consumer IoT to enterprise infrastructure. Recent examples include **CVE-2024-41592** \(DrayTek routers - buffer overflow in GetCGI\(\) with CVSS 10.0\), **CVE-2024-21833** \(TP-Link routers - OS command injection via unsanitized country parameter\), **CVE-2024-12856** \(Four-Faith industrial routers - command injection in adj_time_year parameter\), and **CVE-2025-20334** \(Cisco IOS XE enterprise switches/routers - HTTP API command injection, CVSS 8.8\). The impact spans from home networks to critical infrastructure: **CVE-2023-20198** \(Cisco IOS XE Web UI, CVSS 10.0\) resulted in 40,000-50,000 compromised enterprise network devices worldwide in October 2023. The root cause across all examples: firmware written in non-memory-safe C/C++ without modern language protections built in.
+
+**Locating High-Risk Code:**
+
+Prioritize SAST analysis on the following code paths most likely to expose remote code execution \(RCE\) vulnerabilities:
+
+* **Web server binaries and CGI scripts** - Often found in `/usr/sbin/httpd`, `/www/cgi-bin/`, `/htdocs/`, or `/web/`
+* **API handlers and request parsers** - Search for functions handling HTTP parameters, JSON/XML parsing, or form data
+* **System configuration utilities** - Code that modifies device settings, often accepting user input and executing system commands
+* **Network service daemons** - UPnP, SOAP, REST API endpoints that process external requests
+
+> **Pro Tip:** Use `grep -r "system\|popen\|exec" <extracted_firmware>` to quickly identify code that shells out to the operating system. Then trace backwards to find where user-controlled input enters these dangerous functions. Web server code is particularly valuable for discovering remotely exploitable command injection vulnerabilities that can lead to full device compromise.
+
+The following open-source tools are specifically valuable for embedded firmware analysis:
+
+**Lightweight Scanners:**
+
+* **Cppcheck** - Static analyzer designed for embedded C/C++ projects
+  * Detects buffer overflows, null pointer dereferences, and memory leaks
+  * Supports MISRA and CERT compliance standards critical for safety-critical embedded systems
+  * Handles non-standard syntax common in embedded development
+  * Low false positive rate with focused bug detection
+  * Installation: `apt install cppcheck` or download from [cppcheck.sourceforge.io](https://cppcheck.sourceforge.io/)
+  * Usage: `cppcheck --enable=all --addon=cert --addon=misra <source_dir>`
+
+* **Flawfinder** - Security-focused vulnerability scanner for C/C++
+  * **Primary use case:** Identifies dangerous function calls that enable buffer overflows and command injection
+  * Flags unsafe functions: strcpy, strcat, sprintf, gets, scanf, system, popen, exec family
+  * Prioritizes findings by risk level \(0-5 scale\)
+  * Fast lexical scanning without compilation requirements
+  * HTML output with vulnerability code context
+  * Installation: `pip install flawfinder`
+  * Usage: `flawfinder --html --context --minlevel=4 <source_dir> > report.html`
+  * **Best for:** Quick triage of web server code and CGI binaries for RCE vectors
+
+**Compiler-Integrated Tools:**
+
+* **Clang-Tidy** - LLVM-based linter and static analyzer
+  * Detects memory corruption, buffer overflows, and security issues
+  * Provides automated fixes for common vulnerabilities
+  * Integrates with CMake and modern build systems
+  * Installation: `apt install clang-tidy`
+  * Usage: `clang-tidy <source_files> -- -I<include_paths>`
+
+**Advanced Semantic Analysis:**
+
+* **CodeQL** - Query-based code analysis engine \(GitHub\)
+  * Build-free scanning for C/C++ repositories \(2025 public preview\)
+  * Data flow analysis for tracking unsafe data propagation
+  * Free for open-source firmware projects
+  * Successfully identified 13 CVE vulnerabilities in U-Boot firmware
+  * Installation: Download from [github.com/github/codeql-cli-binaries](https://github.com/github/codeql-cli-binaries)
+  * Usage: Create database and run security queries against firmware code
+
+* **Semgrep** - Fast pattern-based security scanner
+  * Scans C/C++ source without requiring buildable projects
+  * Community rulesets focused on embedded/POSIX vulnerabilities
+  * OSS version available \(C/C++ support experimental but functional\)
+  * Installation: `pip install semgrep`
+  * Usage: `semgrep --config=auto <source_dir>`
+
+**Analysis Workflow for Maximum Impact:**
+
+Use multiple SAST tools in combination, as each tool has unique analysis capabilities and detection patterns. For embedded firmware targeting memory corruption and command injection vulnerabilities, follow this workflow:
+
+1. **Quick triage with Flawfinder** - Scan web server directories and CGI code for dangerous functions \(strcpy, system, popen\)
+2. **Deep analysis with Cppcheck** - Run full CERT/MISRA checks on flagged files to confirm buffer overflow risks
+3. **Validation with Clang-Tidy** - Verify memory safety issues and check for additional CWE patterns
+4. **Advanced threat modeling with CodeQL or Semgrep** - Trace data flow from web parameters to unsafe sinks
+
+**Target Code Paths in Priority Order:**
+
+1. `/www/cgi-bin/*` and `/htdocs/*` - Web interfaces handling HTTP requests
+2. Files containing `system()`, `popen()`, `exec*()` - Command execution code
+3. Functions with `strcpy()`, `sprintf()`, `gets()` - Buffer overflow candidates
+4. JSON/XML parsers and input validators - Data deserialization vulnerabilities
+
+For firmware with available source code, integrate these tools into your analysis workflow before proceeding to dynamic testing stages. SAST findings of command injection in web server code provide high-value targets for Stage 7 dynamic analysis and exploitation attempts. These tools complement binary analysis frameworks like FACT and EMBA by providing source-level vulnerability detection that can guide targeted reverse engineering efforts.
+
 #### Firmware Analysis Comparison Toolkit  \(FACT \)
 
 Fortunately, multiple open source automated firmware analysis tools are available. FACT features include the following:
@@ -281,7 +361,7 @@ Figure : FACT IoTGoat
 
 Figure : FACT IoTGoat Exploit Mitigation Results
 
-Disassemble suspect target binaries with data gathered from FACT using IDA Pro, Ghidra, Hopper, Capstone, or Binary Ninja. Analyze binaries for potential remote code execution system calls, strings, function lists, memory corruption vulnerabilities, and identify Xrefs to system\(\) or alike function calls. Note potential vulnerabilities to use for upcoming steps.
+Disassemble suspect target binaries with data gathered from FACT using free and open-source tools such as Ghidra, Radare2/Rizin, Cutter, or Capstone. Analyze binaries for potential remote code execution system calls, strings, function lists, memory corruption vulnerabilities, and identify Xrefs to system\(\) or alike function calls. Note potential vulnerabilities to use for upcoming steps.
 
 The following screenshot shows the “shellback” binary disassembled using Ghidra.
 
@@ -375,6 +455,15 @@ For Microsoft binaries \(EXE & DLL\), use [PESecurity](https://github.com/NetSPI
 * Detection of certificates, private keys and password hashes
 * Detection of binary mitigations such as NX, DEP, ASLR, stack canaries, RELRO, and FORTIFY\_SOURCE
 * Detection of legacy binary functions (e.g. strcpy)
+* **Software Bill of Materials \(SBOM\) generation** - As of 2024, EMBA evolved to include comprehensive SBOM capabilities critical for regulatory compliance and vulnerability management
+  * Generates reproducible and accurate SBOMs for firmware analysis
+  * Works with systems lacking traditional package managers \(essential for embedded devices\)
+  * Supports multiple package manager environments simultaneously
+  * Integration with cve-bin-tool for automated CVE correlation
+  * SBOM VEX \(Vulnerability Exploitability eXchange\) support for detailed vulnerability context
+  * Tracks recompiled and modified libraries often missed by traditional AppSec tools
+  * Complies with 2025 CISA minimum SBOM elements for U.S. Government contracts
+* Enhanced extraction pipeline with Binwalk v3 \(Rust\) and unblob integration \(December 2024\)
 * Parallel execution for maximum performance
 * Pre-configured docker image is available and easy to install
 * Interactive HTML report for further tear down of the automated analysis
@@ -456,6 +545,81 @@ More details with the main results of each firmware test are available in the de
 More information is available on the official *[EMBArk git repository](https://github.com/e-m-b-a/embark)*.
 
 *Note:* *EMBArk* is in a very early development stage.
+
+#### Software Bill of Materials \(SBOM\) Generation
+
+As firmware security assessments increasingly require regulatory compliance and supply chain transparency, generating a comprehensive Software Bill of Materials has become essential. As of 2025, SBOMs are mandatory for organizations selling software to the U.S. Government \(Executive Order 14028\), and over 60% of enterprises require SBOMs as part of their cybersecurity practices.
+
+##### Why SBOMs Matter for Firmware Security
+
+Traditional application security tooling creates incomplete SBOMs for IoT and embedded devices due to the following limitations:
+
+* Cannot identify libraries that were statically compiled, recompiled, or modified from their original source
+* Lacks visibility into vulnerabilities present in binary-only firmware components
+* Misses dependencies in systems without traditional package managers \(common in embedded Linux\)
+* Fails to track firmware-specific components such as bootloaders, RTOS kernels, and proprietary drivers
+
+A comprehensive firmware SBOM enables:
+
+* **Rapid vulnerability response** - Identify affected components in hours instead of weeks when new CVEs are published
+* **Supply chain transparency** - Track all third-party components, open source libraries, and their origins
+* **Compliance requirements** - Meet CISA 2025 minimum SBOM elements and industry regulations
+* **Risk assessment** - Understand the complete attack surface of firmware before deployment
+* **License compliance** - Identify all open source licenses \(GPL, MIT, Apache, etc.\) to prevent legal issues
+
+##### Generating SBOMs with EMBA
+
+EMBA's SBOM generation provides comprehensive component tracking specifically designed for firmware analysis. The following example demonstrates SBOM generation during a standard EMBA firmware scan:
+
+```bash
+sudo ./emba.sh -f firmware.bin -l ~/emba_logs -p ./scan-profiles/default-scan.emba
+```
+
+EMBA automatically generates SBOM data as part of its analysis process, including:
+
+* All detected software components with version information
+* CVE correlation via integrated cve-bin-tool
+* Component relationships and dependencies
+* Cryptographic asset inventory \(certificates, keys\)
+* Binary security posture per component
+
+The SBOM output is included in EMBA's HTML report and can be exported in standard formats \(SPDX, CycloneDX\) for integration with vulnerability management platforms.
+
+##### SBOM Best Practices for Firmware
+
+When generating and maintaining SBOMs for firmware security assessments:
+
+1. **Generate SBOMs early** - Create an SBOM during initial firmware acquisition \(Stage 2\) to establish a baseline
+2. **Update continuously** - Regenerate SBOMs with each firmware version to track component changes
+3. **Validate completeness** - Cross-reference SBOM output with manual filesystem analysis to identify gaps
+4. **Correlate with CVEs** - Use SBOM data to immediately assess impact when new vulnerabilities are disclosed
+5. **Share with stakeholders** - Provide SBOM reports to development teams, security operations, and compliance officers
+6. **Archive for compliance** - Maintain historical SBOMs for audit trails and incident response
+
+##### CISA Minimum SBOM Elements \(2025\)
+
+Ensure firmware SBOMs include the following minimum elements as defined by CISA:
+
+* **Supplier Name** - Entity that creates, defines, and identifies components
+* **Component Name** - Designation assigned to a software unit by the original supplier
+* **Version** - Identifier used to denote a change in software
+* **Other Unique Identifiers** - Additional identifiers such as CPE \(Common Platform Enumeration\) or PURL \(Package URL\)
+* **Dependency Relationships** - Characterization of the relationship between components
+* **SBOM Author** - Name of the entity creating the SBOM
+* **Timestamp** - Record of the date and time of SBOM creation
+
+Reference: [https://www.cisa.gov/sbom](https://www.cisa.gov/sbom)
+
+##### SBOM Tools and Formats
+
+While EMBA provides comprehensive SBOM generation for firmware, other complementary tools include:
+
+* **Syft** - CLI tool for generating SBOMs from container images and filesystems
+* **Tern** - Inspection tool for containers to generate SBOM reports
+* **CycloneDX** - Lightweight SBOM standard designed for application security
+* **SPDX** - Standard format for communicating software component information
+
+For firmware security assessments, EMBA's integrated approach is recommended as it combines SBOM generation with vulnerability analysis, binary security testing, and emulation capabilities in a single workflow.
 
 ### **\[Stage 6\] Emulating firmware**
 
@@ -630,8 +794,8 @@ In this stage, perform dynamic testing while a device is running in its normal o
 
 Tools that may be helpful are \(non-exhaustive\):
 
-* Burp Suite
 * OWASP ZAP
+* Burp Suite Community Edition \(free version\)
 * Commix
 * Fuzzers such as - American fuzzy loop \(AFL\)
 * Network and protocol fuzzers such as - [Mutiny](https://github.com/Cisco-Talos/mutiny-fuzzer),  [boofuzz](https://github.com/jtpereyda/boofuzz), and [kitty](https://github.com/cisco-sas/kitty).
@@ -726,7 +890,7 @@ If possible, identify a vulnerability within startup scripts to obtain persisten
 Runtime analysis involves attaching to a running process or binary while a device is running in its normal or emulated environment. Basic runtime analysis steps are provided below:
 
 1. `sudo chroot . ./qemu-arch -L <optionalLibPath> -g <gdb_port> <binary>`
-2. Attach gdb-multiarch or use IDA to emulate the binary
+2. Attach gdb-multiarch or use a disassembler to emulate the binary
 3. Set breakpoints for functions identified during step 4 such as memcpy, strncpy, strcmp, etc.
 4. Execute large payload strings to identify overflows or process crashes using a fuzzer
 5. Move to step 8 if a vulnerability is identified
@@ -734,14 +898,34 @@ Runtime analysis involves attaching to a running process or binary while a devic
 Tools that may be helpful are \(non-exhaustive\):
 
 * gdb-multiarch
-* [Peda](https://github.com/longld/peda) 
+* [Peda](https://github.com/longld/peda)
+* [GEF \(GDB Enhanced Features\)](https://github.com/hugsy/gef)
+* [pwndbg](https://github.com/pwndbg/pwndbg)
 * Frida
 * ptrace
 * strace
-* IDA Pro
 * Ghidra
-* Binary Ninja
-* Hopper
+* Radare2/Rizin
+* [Cutter](https://github.com/rizinorg/cutter) \(GUI for Rizin\)
+
+#### Free and Open-Source Reverse Engineering Tools
+
+When selecting reverse engineering and binary analysis tools, prioritize free and open-source options to ensure accessibility and reproducibility:
+
+**Disassemblers and Decompilers:**
+* **Ghidra** - NSA's software reverse engineering framework with powerful decompiler supporting multiple architectures \(ARM, MIPS, x86, etc.\). Includes scripting capabilities via Python and Java.
+* **Radare2/Rizin** - UNIX-like reverse engineering framework with command-line interface, supports extensive architecture set and binary formats.
+* **Cutter** - Modern GUI for Rizin providing graph visualization, decompilation, and interactive analysis capabilities.
+
+**Dynamic Analysis and Debugging:**
+* **GEF, PEDA, pwndbg** - GDB enhancement scripts providing exploit development features, heap visualization, and improved debugging workflows.
+* **Frida** - Dynamic instrumentation toolkit for injecting JavaScript into native applications on Windows, macOS, GNU/Linux, iOS, Android, and QNX.
+
+**Binary Analysis Frameworks:**
+* **angr** - Python-based binary analysis platform with symbolic execution, control-flow analysis, and vulnerability discovery capabilities.
+* **QEMU** - Machine emulator supporting user-mode and system-mode emulation for firmware analysis across architectures.
+
+These tools provide professional-grade reverse engineering capabilities without licensing costs, making firmware security analysis accessible to researchers, students, and organizations worldwide.
 
 ### **\[Stage 9\] Binary Exploitation**
 
@@ -758,13 +942,14 @@ Utilize the following references for further guidance:
 
 A combination of tools will be used throughout assessing firmware. Listed below, are commonly used tools.
 
-* [Firmware Analysis Comparison Toolkit](https://github.com/fkie-cad/FACT_core) \(FACT\)
+* [Firmware Analysis Comparison Toolkit](https://github.com/fkie-cad/FACT_core) \(FACT\) - Actively maintained through 2024, requires Python 3.10-3.12
 * [FWanalyzer](https://github.com/cruise-automation/fwanalyzer)
 * [Firmwalker](https://github.com/craigz28/firmwalker)
 * [Firmware Modification Kit](https://code.google.com/archive/p/firmware-mod-kit/)
 * [Firmadyne](https://github.com/firmadyne/firmadyne)
 * [ByteSweep](https://gitlab.com/bytesweep/bytesweep)
-* [Binwalk](http://binwalk.org/)
+* [Binwalk](https://github.com/ReFirmLabs/binwalk) - **v3.x recommended** \(Rust rewrite, 2024\) - Significantly faster with improved accuracy
+* [Unblob](https://github.com/onekey-sec/unblob) - Modern extraction suite supporting 30+ formats with Rust-accelerated performance
 * [Flashrom](https://www.flashrom.org/Flashrom)
 * [Openocd](http://openocd.org/)
 * [Angr binary analysis framework](https://github.com/angr/angr)
@@ -776,7 +961,16 @@ A combination of tools will be used throughout assessing firmware. Listed below,
 * [Capstone Engine](https://github.com/aquynh/capstone)
 * [Qiling Advanced Binary Emulation Framework](https://github.com/qilingframework/qiling)
 * [Triton dynamic binary analysis \(DBA\) framework](https://triton.quarkslab.com/)
-* [EMBA - The firmware security analyzer](https://github.com/e-m-b-a/emba)
+* [EMBA - The firmware security analyzer](https://github.com/e-m-b-a/emba) - **2024 update includes SBOM generation** with cve-bin-tool integration
+* [EMBArk - Enterprise firmware scanning environment](https://github.com/e-m-b-a/embark) - Official release 2024
+
+**C/C++ Static Analysis Security Testing \(SAST\) Tools:**
+
+* [Cppcheck](https://github.com/danmar/cppcheck) - C/C++ static analyzer with MISRA/CERT compliance support for embedded systems
+* [Flawfinder](https://github.com/david-a-wheeler/flawfinder) - Lightweight security scanner for C/C++ identifying dangerous functions
+* [Clang-Tidy](https://clang.llvm.org/extra/clang-tidy/) - LLVM-based linter detecting memory corruption and security issues
+* [CodeQL](https://codeql.github.com/) - GitHub's semantic analysis engine with build-free C/C++ scanning \(free for OSS\)
+* [Semgrep](https://github.com/semgrep/semgrep) - Fast pattern-based scanner with embedded/POSIX rulesets \(OSS version\)
 
 ### Vulnerable firmware
 

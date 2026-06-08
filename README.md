@@ -1004,41 +1004,59 @@ The [OWASP IoT Security Verification Standard \(ISVS\)](https://github.com/OWASP
          (WHAT)                       (HOW)                    (SUCCESS)
 ```
 
-**Mapping ISVS V3 Requirements to FSTM Stages:**
+**ISVS Requirements by FSTM Stage:**
 
-| ISVS Requirement | FSTM Stage | Testing Focus |
-|-----------------|-----------|--------------|
-| V3.1 \(SBOM\) | Stage 5 | Verify SBOM generation from extracted filesystem \(see EMBA SBOM analysis\) |
-| V3.2 \(Third-party Components\) | Stage 5 | Identify outdated libraries, vulnerable dependencies in extracted firmware |
-| V3.3 \(Secure Communication\) | Stage 7 | Dynamic analysis of encrypted channels, certificate validation |
-| V3.4 \(Firmware Update\) | Stage 7 | Test OTA update mechanism security, signature verification |
-| V4.1 \(Memory Protection\) | Stage 8 | Runtime analysis of ASLR, DEP, stack canaries in binary execution |
-| V4.2 \(Cryptography\) | Stage 5 & 8 | Static analysis of crypto implementations, runtime key storage validation |
+The following maps each FSTM stage to the specific ISVS 1.0 requirement IDs it directly evidences, verified against current ISVS requirement text. Use these to structure compliance reporting and identify coverage gaps.
+
+| FSTM Stage | ISVS ID | Requirement (abbreviated) | Verification method |
+|---|---|---|---|
+| **Stage 1** — Recon | V1.1.3 | Threat modeling used for product design and feature changes | Threat model artifacts present and reviewed during reconnaissance |
+| **Stage 1** — Recon | V1.2.1 | SBOM maintained for all firmware and applications | SBOM reviewed as a reconnaissance artifact |
+| **Stage 2** — Obtain Firmware | V1.2.4 | Debug interfaces (JTAG, SWD) disabled before shipping | Successful firmware extraction via debug interface is direct evidence of failure |
+| **Stage 3** — Analyze Firmware | V3.1.7 | Firmware stored in encrypted volume at rest | Entropy analysis on raw flash dump — low entropy indicates unencrypted storage |
+| **Stage 5** — Filesystem Analysis | V1.2.1 | SBOM maintained | Component enumeration cross-referenced against SBOM |
+| **Stage 5** — Filesystem Analysis | V1.2.2 | Third-party/OSS risk areas identified and mitigated | Filesystem enumeration surfaces component risk posture |
+| **Stage 5** — Filesystem Analysis | V1.3.3 | Banned C/C++ functions replaced with safe equivalents | Binary analysis with `grep`, `strings`, or SAST detects banned function usage |
+| **Stage 5** — Filesystem Analysis | V1.3.7 | Packages compiled with FORTIFY_SOURCE | `checksec --file=<binary>` or `readelf -s <binary> \| grep "_chk"` |
+| **Stage 5** — Filesystem Analysis | V1.3.8 | Packages compiled with NX/DEP | `checksec --file=<binary>` confirms NX bit on extracted binaries |
+| **Stage 5** — Filesystem Analysis | V1.3.10 | Packages compiled with SSP (stack canary) | `checksec --file=<binary>` or `readelf -s <binary> \| grep "__stack_chk_fail"` |
+| **Stage 5** — Filesystem Analysis | V1.3.12 | Release builds contain no debug code or privileged diagnostics | Filesystem inspection for debug artifacts, diagnostic binaries, verbose log configs |
+| **Stage 5** — Filesystem Analysis | V1.3.15 | Applications not susceptible to OS command injection | Filesystem review of shell wrappers, init scripts, and firmware code for injection patterns |
+| **Stage 5** — Filesystem Analysis | V2.1.9 | No hardcoded credentials in firmware or applications | Filesystem search via `grep`, Firmwalker, or EMBA for credentials in configs and binaries |
+| **Stage 5** — Filesystem Analysis | V2.4.2 | Standard, strong cryptographic algorithms with adequate key size | Static analysis of extracted binaries identifies crypto algorithm usage |
+| **Stage 5** — Filesystem Analysis | V3.2.3 | No legacy or insecure protocols (Telnet, FTP) | Init scripts and installed binaries inspected for insecure service presence |
+| **Stage 6** — Emulation | V2.2.2 | Devices enforce least privilege — services not running as root | Privilege escalation paths revealed via emulated runtime |
+| **Stage 6** — Emulation | V3.2.1 | OS configured per CIS/SCAP benchmarks with secure defaults | OS kernel configuration inspected via emulated environment |
+| **Stage 7** — Dynamic Analysis | V3.1.5 | Bootloader stages cryptographically verified before executing | Dynamic test whether verification is enforced at each boot stage |
+| **Stage 7** — Dynamic Analysis | V3.2.2 | All exposed network services are necessary; unnecessary removed | `netstat -tuln`, `ss`, `nmap` against live device enumerate exposed services per interface |
+| **Stage 7** — Dynamic Analysis | V3.4.3 | Updates cryptographically signed; authenticity verified before execution | Network traffic interception tests whether signature verification is enforced |
+| **Stage 7** — Dynamic Analysis | V3.4.8 | Unsigned debug pre-production firmware builds cannot be flashed | Attempt to flash unsigned/modified firmware — device must reject it |
+| **Stage 7** — Dynamic Analysis | V4.1.1 | Ecosystem communications use a secure channel (confidentiality, integrity, replay protection) | Network traffic analysis tests TLS and replay protection of ecosystem comms |
+| **Stage 8** — Runtime Analysis | V1.3.9 | Packages compiled with PIE | `checksec --proc-all` or `/proc/<pid>/maps` confirms ASLR entropy at runtime |
+| **Stage 8** — Runtime Analysis | V1.3.10 | Packages compiled with SSP (stack canary) | `checksec --proc-all` confirms stack canary present in running processes |
+| **Stage 8** — Runtime Analysis | V1.3.11 | Packages compiled with RELRO | `checksec --proc-all` or `readelf -d <binary> \| grep "BIND_NOW"` at runtime |
+| **Stage 8** — Runtime Analysis | V3.2.7 | ASLR and DEP enabled by the embedded OS | `cat /proc/sys/kernel/randomize_va_space`; DEP tested via runtime exploitation probing |
+| **Stage 9** — Exploitation | V1.3.9 | PIE — Position Independent Executable | PIE effectiveness validated by exploitation attempt — success indicates absence |
+| **Stage 9** — Exploitation | V3.2.7 | ASLR and DEP enabled | Active exploitation outcome directly tests whether mitigations prevent code execution |
 
 **ISVS Security Levels and FSTM Testing Depth:**
 
-* **Level 1 \(L1\)** - Basic security: Execute FSTM Stages 1-5 \(reconnaissance, extraction, static analysis\)
-* **Level 2 \(L2\)** - Standard security: Add FSTM Stages 6-7 \(emulation, dynamic analysis\)
-* **Level 3 \(L3\)** - Advanced security: Full FSTM Stages 1-9 \(including runtime analysis and exploitation\)
+* **Level 1 (L1)** — Basic security: Execute FSTM Stages 1–5 (reconnaissance, firmware acquisition, static and filesystem analysis)
+* **Level 2 (L2)** — Standard security: Add FSTM Stages 6–7 (emulation, dynamic analysis, network analysis)
+* **Level 3 (L3)** — Advanced security: Full FSTM Stages 1–9 (including runtime analysis, exploitation, and post-exploitation)
 
 **Example: Requirements-Driven Firmware Assessment**
 
 ```
 Client Request: "Assess IoT device firmware to ISVS Level 2 compliance"
 
-Step 1: Review ISVS V3 and V4 requirements for L2 security level
-Step 2: Execute FSTM Stages 1-7 to collect evidence against ISVS requirements
-Step 3: Document findings using ISVS requirement IDs (e.g., "V3.4 FAIL: No signature verification on firmware updates")
-Step 4: Provide remediation mapped to ISVS controls
+Step 1: Review ISVS V1, V2, V3, and V4 requirements applicable at L2
+Step 2: Execute FSTM Stages 1–7, mapping each stage to the ISVS IDs in the table above
+Step 3: Document findings using exact ISVS requirement IDs
+        (e.g., "V3.4.3 FAIL: firmware update accepted without signature verification")
+Step 4: Provide remediation guidance mapped to the specific ISVS control
+Step 5: Identify any L2 ISVS requirements not covered by FSTM — address with ISTG test cases
 ```
-
-**Key ISVS Requirements for Firmware Testing:**
-
-* **V1.1.1** - Device maintains accurate SBOM \(verified via FSTM Stage 5 EMBA analysis\)
-* **V3.2.2** - Third-party components updated to latest versions \(tested via dependency analysis\)
-* **V3.4.1** - Firmware update mechanism uses digital signatures \(tested via FSTM Stage 7 OTA analysis\)
-* **V4.1.1** - Memory protection mechanisms enabled \(verified via FSTM Stage 8 runtime analysis\)
-* **V4.2.1** - Industry-standard cryptography used \(validated via FSTM Stage 5 binary analysis\)
 
 **Resources:**
 

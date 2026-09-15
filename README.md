@@ -732,13 +732,14 @@ With the target binary emulated, interact with its interpreter or listening serv
 
 #### Full-system Emulation
 
-When possible, use automation tools such as firmadyne, firmware analysis toolkit, or ARM-X Firmware Emulation Framework to perform full emulation of firmware. These tools are essentially wrappers for QEMU and other environmental functions such as nvram.
+When possible, use automation tools such as firmadyne, firmware analysis toolkit, [EMBA](https://github.com/e-m-b-a/emba/wiki/System-emulation) or ARM-X Firmware Emulation Framework to perform full emulation of firmware. These tools are essentially wrappers for QEMU and other environmental functions such as nvram.
 
 * [https://github.com/attify/firmware-analysis-toolkit](https://github.com/attify/firmware-analysis-toolkit)
 * [https://github.com/therealsaumil/armx/](https://github.com/therealsaumil/armx/)
 * [https://github.com/getCUJO/MIPS-X](https://github.com/getCUJO/MIPS-X)
 * [https://github.com/firmadyne/firmadyne](https://github.com/firmadyne/firmadyne)
 * [https://github.com/qilingframework/qiling\#qltool](https://github.com/qilingframework/qiling#qltool)
+* [https://github.com/e-m-b-a/emba/wiki/System-emulation](https://github.com/e-m-b-a/emba/wiki/System-emulation)
 
 Using firmware analysis toolkit, simply execute the following command:
 
